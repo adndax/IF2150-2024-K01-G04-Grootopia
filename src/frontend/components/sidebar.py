@@ -94,10 +94,6 @@ class Sidebar(QWidget):
                         padding-right: 30px;
                         border: none;
                         border-radius: 12px;
-                        border-top-right-radius: 12px;    
-                        border-bottom-right-radius: 12px;
-                        border-top-left-radius: 12px;
-                        border-bottom-left-radius: 12px;
                         color: #333333;
                         min-height: 50px;
                         min-width: 310px;
@@ -111,25 +107,6 @@ class Sidebar(QWidget):
                     }
                 """)
                         
-            # btn.setStyleSheet("""
-            #     QPushButton {
-            #         text-align: left;
-            #         padding: 15px;
-            #         padding-right: 30px;
-            #         border: none;
-            #         border-radius: 12px;
-            #         color: #333333;
-            #         min-height: 50px;
-            #         min-width: 310px;
-            #     }
-            #     QPushButton:hover {
-            #         background-color: #E8E8E8;
-            #     }
-            #     QPushButton:checked {
-            #         background-color: #59694D;
-            #         color: white;
-            #     }
-            # """)
             btn.setCheckable(True)
             btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             btn.clicked.connect(lambda checked, i=idx: self.handle_button_click(i))
@@ -145,9 +122,8 @@ class Sidebar(QWidget):
         
         self.setStyleSheet("""
             QWidget {
-                background-color: white;
-                border-top-right-radius: 20px;
-                border-bottom-right-radius: 20px;
+                background-color: #EBF1E6;
+
             }
             QWidget#sidebar {
                 min-height: 100vh;
@@ -159,3 +135,15 @@ class Sidebar(QWidget):
         for i, btn in enumerate(self.nav_buttons):
             btn.setChecked(i == index)
         self.pageChanged.emit(index)
+
+
+
+                        # border-top-right-radius: 12px;    
+                        # border-bottom-right-radius: 12px;
+                        # border-top-left-radius: 12px;
+                        # border-bottom-left-radius: 12px;
+
+
+
+                #                         border-top-right-radius: 20px;
+                # border-bottom-right-radius: 20px;
