@@ -21,13 +21,68 @@ Persyaratan Sistem:
 • PyQt5  
 • SQLite    
 
-# Clone Repository
 
-	git clone https://github.com/your-repo/grootopia.git](https://github.com/adndax/IF2150-2024-K01-G04-Grootopia.git
 
-# Menjalankan Aplikasi
+## Project Structure
+```
+IF2150-2024-K01-G04-Grootopia/
+├── src/                    # Source code
+│   ├── frontend/          # Frontend components
+│   │   ├── components/    # Reusable UI components
+│   │   └── pages/        # Application pages
+│   └── backend/           # Backend logic
+├── img/                   # Image assets
+├── tests/                 # Test files
+├── docs/                  # Documentation
+└── requirements.txt       # Python dependencies
+```
 
-	python mainwindow.py
+
+## Setup Instructions
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/yourusername/IF2150-2024-K01-G04-Grootopia.git
+cd IF2150-2024-K01-G04-Grootopia
+```
+
+### 2. Set Up Virtual Environment
+For Windows:
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+venv\Scripts\activate
+```
+
+For Unix/MacOS:
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run Application
+```bash
+python src/main.py
+```
+
+## Development
+
+### Running Tests
+```bash
+pytest tests/
+```
+
+
 
 # Kontributor   
 • Muhammad Alfansya (13523005)  
