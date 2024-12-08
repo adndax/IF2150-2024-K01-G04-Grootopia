@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, 
                            QDialog, QLineEdit, QCalendarWidget, QHBoxLayout,
-                           QDateTimeEdit, QSizePolicy)
+                           QDateTimeEdit, QSizePolicy, QScrollArea)
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QFont, QIcon
 from src.backend.controllers.kontrol_tanaman import KontrolTanaman
@@ -214,9 +214,68 @@ class TanamanUI(QWidget):
     def __init__(self):
         super().__init__()
         self.__kontrol_tanaman = KontrolTanaman()
+        
+        # Main layout untuk seluruh widget
         self.__main_layout = QVBoxLayout(self)
-        self.__main_layout.setSpacing(25)
-        self.__main_layout.setContentsMargins(30, 30, 30, 30)
+        self.__main_layout.setSpacing(0)
+        self.__main_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Container untuk tombol Tambah
+        self.header_widget = QWidget()
+        header_layout = QVBoxLayout(self.header_widget)
+        header_layout.setContentsMargins(30, 30, 30, 15)
+        
+        # Tambah Tanaman button
+        tambah_btn = QPushButton("+ Tambah Tanaman")
+        tambah_btn.setFixedHeight(70)
+        tambah_btn.setFont(QFont("Inter", 12, QFont.Bold))
+        tambah_btn.setStyleSheet("""
+            QPushButton {
+                background-color: white;
+                color: #6C4530;
+                border: none;
+                border-radius: 16px;
+                padding: 15px 25px;
+                text-align: center;
+                font-weight: bold;
+                border: 1px solid #E0E0E0;
+            }
+            QPushButton:hover {
+                background-color: #f5f5f5;
+            }
+        """)
+        tambah_btn.clicked.connect(self.tampilkanFormInput)
+        header_layout.addWidget(tambah_btn)
+        
+        self.__main_layout.addWidget(self.header_widget)
+        
+        # Scroll Area untuk daftar tanaman
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+            QScrollBar:vertical {
+                background: #f1f1f1;
+                width: 10px;
+            }
+            QScrollBar::handle:vertical {
+                background: #888;
+                border-radius: 5px;
+            }
+        """)
+        
+        # Container untuk item-item tanaman
+        self.scroll_content = QWidget()
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+        self.scroll_layout.setSpacing(25)
+        self.scroll_layout.setContentsMargins(30, 15, 30, 30)
+        scroll.setWidget(self.scroll_content)
+        
+        self.__main_layout.addWidget(scroll)
+        
         self.kelolaTanaman()
 
     def kelolaTanaman(self):
@@ -224,10 +283,11 @@ class TanamanUI(QWidget):
         self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
         self.perbaruiTampilan()
 
-    def add_tanaman_item(self, tanaman):
+    def tanaman_item(self, tanaman):
+       
         item_widget = QWidget()
         item_layout = QHBoxLayout(item_widget)
-        item_layout.setContentsMargins(25, 15, 25, 15)
+        item_layout.setContentsMargins(25, 20, 25, 20)
         item_layout.setSpacing(20)
         
         nama_label = QLabel(tanaman['nama'])
@@ -235,7 +295,7 @@ class TanamanUI(QWidget):
         nama_label.setStyleSheet("color: #6C4530; border: none;")
         
         sunting_btn = QPushButton("SUNTING")
-        sunting_btn.setFixedSize(240, 40)
+        sunting_btn.setFixedSize(240, 60)
         sunting_btn.setFont(QFont("Inter", 12, QFont.Bold))
         sunting_btn.setStyleSheet("""
             QPushButton {
@@ -253,7 +313,7 @@ class TanamanUI(QWidget):
         sunting_btn.clicked.connect(lambda: self.tampilkanFormInput(True, tanaman))
         
         hapus_btn = QPushButton("HAPUS")
-        hapus_btn.setFixedSize(240, 40)
+        hapus_btn.setFixedSize(240, 60)
         hapus_btn.setFont(QFont("Inter", 12, QFont.Bold))
         hapus_btn.setStyleSheet("""
             QPushButton {
@@ -284,43 +344,19 @@ class TanamanUI(QWidget):
             }
         """)
         
-        self.__main_layout.addWidget(item_widget)
+        self.scroll_layout.addWidget(item_widget)
 
     def perbaruiTampilan(self):
         """Memperbarui tampilan setelah perubahan data"""
-        # Hapus semua widget yang ada di layout
-        while self.__main_layout.count():
-            child = self.__main_layout.takeAt(0)
+        while self.scroll_layout.count():
+            child = self.scroll_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
-        # Tambah Tanaman button
-        tambah_btn = QPushButton("+ Tambah Tanaman")
-        tambah_btn.setFixedHeight(70)
-        tambah_btn.setFont(QFont("Inter", 12, QFont.Bold))
-        tambah_btn.setStyleSheet("""
-            QPushButton {
-                background-color: white;
-                color: #6C4530;
-                border: none;
-                border-radius: 16px;
-                padding: 15px 25px;
-                text-align: center;
-                font-weight: bold;
-                border: 1px solid #E0E0E0;
-            }
-            QPushButton:hover {
-                background-color: #f5f5f5;
-            }
-        """)
-        tambah_btn.clicked.connect(self.tampilkanFormInput)
-        self.__main_layout.addWidget(tambah_btn)
-        
-        # Tanaman items
         for tanaman in self.__tanaman_list:
-            self.add_tanaman_item(tanaman)
+            self.tanaman_item(tanaman)
         
-        self.__main_layout.addStretch()
+        self.scroll_layout.addStretch()
     
     def tampilkanFormInput(self, is_edit=False, data=None):
         dialog = FormInputTanaman(self, is_edit, data)

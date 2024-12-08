@@ -1,4 +1,3 @@
-# src/backend/models/tanaman.py
 from datetime import datetime
 
 class Tanaman:
@@ -20,10 +19,10 @@ class Tanaman:
         self.__nama = nama
         self.__waktu_tanam = waktu_tanam
 
-    def updateTanaman(self, nama, waktu_tanam):
-        """Memperbarui data tanaman"""
-        self.__nama = nama
-        self.__waktu_tanam = waktu_tanam
+    # def updateTanaman(self, nama, waktu_tanam):
+    #     """Memperbarui data tanaman"""
+    #     self.__nama = nama
+    #     self.__waktu_tanam = waktu_tanam
 
     def detailTanaman(self):
         """Menampilkan detail satu tanaman"""
