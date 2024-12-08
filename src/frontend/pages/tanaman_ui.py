@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, 
                            QDialog, QLineEdit, QCalendarWidget, QHBoxLayout,
-                           QSpinBox, QFrame, QDateTimeEdit, QSizePolicy)
+                           QDateTimeEdit, QSizePolicy)
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QFont, QIcon
+from src.backend.controllers.kontrol_tanaman import KontrolTanaman
 import os
 
-class TanamanDialog(QDialog):
+class FormInputTanaman(QDialog):
     def __init__(self, parent=None, is_edit=False, data=None):
         super().__init__(parent)
         self.setWindowTitle("Tambah Tanaman" if not is_edit else "Sunting Tanaman")
@@ -129,7 +130,7 @@ class DeleteConfirmDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Konfirmasi")
-        self.setFixedSize(400, 450)  
+        self.setFixedSize(400, 450)
         self.setStyleSheet("background-color: #DDE3D8;")
         self.setup_ui()
 
@@ -137,6 +138,7 @@ class DeleteConfirmDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.setSpacing(30)
         layout.setContentsMargins(30, 35, 30, 35)
+        
         # Title
         title = QLabel("KONFIRMASI")
         title.setAlignment(Qt.AlignCenter)
@@ -208,12 +210,24 @@ class DeleteConfirmDialog(QDialog):
         
         layout.addLayout(button_layout)
 
-class KelolaTanaman(QWidget):
+class TanamanUI(QWidget):
     def __init__(self):
         super().__init__()
+        self.__kontrol_tanaman = KontrolTanaman()
+        # self.setup_ui()
+        # self.__layout = QVBoxLayout(self)
+        # self.__layout.setSpacing(25)
+        # self.__layout.setContentsMargins(30, 30, 30, 30)
+        self.kelolaTanaman()
+
+    def kelolaTanaman(self):
+        """Menampilkan halaman kelola tanaman"""
+        self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
         self.setup_ui()
-        
+    
     def setup_ui(self):
+        # if self.__layout.count() > 0:
+        #     return  
         layout = QVBoxLayout(self)
         layout.setSpacing(25)
         layout.setContentsMargins(30, 30, 30, 30)
@@ -237,92 +251,100 @@ class KelolaTanaman(QWidget):
                 background-color: #f5f5f5;
             }
         """)
-        tambah_btn.clicked.connect(self.tampilkanFormInputTambah)
+        tambah_btn.clicked.connect(lambda: self.tampilkanFormInput())
         layout.addWidget(tambah_btn)
         
         # Tanaman items
-        self.tanaman_list = [
-            {'id': 1, 'nama': 'Tanaman A', 'waktu_tanam': QDateTime.currentDateTime()},
-            {'id': 2, 'nama': 'Tanaman B', 'waktu_tanam': QDateTime.currentDateTime()}
-        ]
-        
-        for tanaman in self.tanaman_list:
-            item_widget = QWidget()
-            item_layout = QHBoxLayout(item_widget)
-            item_layout.setContentsMargins(25, 15, 25, 15)
-            item_layout.setSpacing(20)
-            
-            nama_label = QLabel(tanaman['nama'])
-            nama_label.setFont(QFont("Inter", 12, QFont.Bold))
-            nama_label.setStyleSheet("color: #6C4530; border: none;")
-            
-            sunting_btn = QPushButton("SUNTING")
-            sunting_btn.setFixedSize(240, 40)
-            sunting_btn.setFont(QFont("Inter", 12, QFont.Bold))
-            sunting_btn.setStyleSheet("""
-                QPushButton {
-                    background-color: #59694D;
-                    color: white;
-                    border: none;
-                    border-radius: 12px;
-                    font-weight: bold;
-                    margin-bottom: 20px; 
-                }
-                QPushButton:hover {
-                    background-color: #4a5a3e;
-                }
-            """)
-            sunting_btn.clicked.connect(lambda checked, t=tanaman: self.tampilkanFormInputEdit(t))
-            
-            hapus_btn = QPushButton("HAPUS")
-            hapus_btn.setFixedSize(240, 40)
-            hapus_btn.setFont(QFont("Inter", 12, QFont.Bold))
-            hapus_btn.setStyleSheet("""
-                QPushButton {
-                    background-color: #9B2C2C;
-                    color: white;
-                    border: none;
-                    border-radius: 12px;
-                    font-weight: bold;
-                    margin-bottom: 20px; 
-                }
-                QPushButton:hover {
-                    background-color: #8b1c1c;
-                }
-            """)
-            hapus_btn.clicked.connect(lambda checked, t=tanaman: self.tampilkanKonfirmasiDelete(t))
-            
-            item_layout.addWidget(nama_label)
-            item_layout.addStretch()
-            item_layout.addWidget(sunting_btn)
-            item_layout.addWidget(hapus_btn)
-            
-            item_widget.setStyleSheet("""
-                QWidget {
-                    background-color: white;
-                    border-radius: 16px;
-                    min-height: 70px;
-                    border: 1px solid #E0E0E0;
-                }
-            """)
-            
-            layout.addWidget(item_widget)
+        for tanaman in self.__tanaman_list:
+            self.add_tanaman_item(tanaman, layout)
         
         layout.addStretch()
+
+    def add_tanaman_item(self, tanaman, layout):
+        item_widget = QWidget()
+        item_layout = QHBoxLayout(item_widget)
+        item_layout.setContentsMargins(25, 15, 25, 15)
+        item_layout.setSpacing(20)
+        
+        nama_label = QLabel(tanaman['nama'])
+        nama_label.setFont(QFont("Inter", 12, QFont.Bold))
+        nama_label.setStyleSheet("color: #6C4530; border: none;")
+        
+        sunting_btn = QPushButton("SUNTING")
+        sunting_btn.setFixedSize(240, 40)
+        sunting_btn.setFont(QFont("Inter", 12, QFont.Bold))
+        sunting_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #59694D;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+            QPushButton:hover {
+                background-color: #4a5a3e;
+            }
+        """)
+        sunting_btn.clicked.connect(lambda: self.tampilkanFormInput(True, tanaman))
+        
+        hapus_btn = QPushButton("HAPUS")
+        hapus_btn.setFixedSize(240, 40)
+        hapus_btn.setFont(QFont("Inter", 12, QFont.Bold))
+        hapus_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #9B2C2C;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+            QPushButton:hover {
+                background-color: #8b1c1c;
+            }
+        """)
+        hapus_btn.clicked.connect(lambda: self.tampilkanKonfirmasi(tanaman))
+        
+        item_layout.addWidget(nama_label)
+        item_layout.addStretch()
+        item_layout.addWidget(sunting_btn)
+        item_layout.addWidget(hapus_btn)
+        
+        item_widget.setStyleSheet("""
+            QWidget {
+                background-color: white;
+                border-radius: 16px;
+                min-height: 60px;
+                border: 1px solid #E0E0E0;
+            }
+        """)
+        
+        layout.addWidget(item_widget)
     
-    def tampilkanFormInputTambah(self):
-        dialog = TanamanDialog(self)
+    def tampilkanFormInput(self, is_edit=False, data=None):
+        dialog = FormInputTanaman(self, is_edit, data)
         if dialog.exec_() == QDialog.Accepted:
-            print("Tambah tanaman")
+            nama = dialog.nama_input.text()
+            waktu_tanam = dialog.datetime_edit.dateTime().toPyDateTime()
+            if is_edit:
+                if self.__kontrol_tanaman.prosesUpdateTanaman(data['id'], nama, waktu_tanam):
+                    self.perbaruiTampilan()
+            else:
+                if self.__kontrol_tanaman.prosesTambahTanaman(nama, waktu_tanam):
+                    self.perbaruiTampilan()
     
-    def tampilkanFormInputEdit(self, tanaman):
-        dialog = TanamanDialog(self, is_edit=True, data=tanaman)
-        if dialog.exec_() == QDialog.Accepted:
-            print("Update tanaman:", tanaman['id'])
-    
-    def tampilkanKonfirmasiDelete(self, tanaman):
+    def tampilkanKonfirmasi(self, tanaman):
         dialog = DeleteConfirmDialog(self)
         if dialog.exec_() == QDialog.Accepted:
-            print("Delete tanaman:", tanaman['id'])
-
+            if self.__kontrol_tanaman.prosesHapusTanaman(tanaman['id']):
+                self.perbaruiTampilan()
+    
+    def perbaruiTampilan(self):
+        """Memperbarui tampilan setelah perubahan data"""
+        for i in reversed(range(self.layout().count())):
+            widget = self.layout().itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+        self.kelolaTanaman()
 
