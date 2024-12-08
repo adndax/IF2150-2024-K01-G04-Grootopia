@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QFont, QIcon
 import os
 
-class TanamanDialog(QDialog):
+class FormInputTanaman(QDialog):
     def __init__(self, parent=None, is_edit=False, data=None):
         super().__init__(parent)
         self.setWindowTitle("Tambah Tanaman" if not is_edit else "Sunting Tanaman")
@@ -311,12 +311,12 @@ class KelolaTanaman(QWidget):
         layout.addStretch()
     
     def tampilkanFormInputTambah(self):
-        dialog = TanamanDialog(self)
+        dialog = FormInputTanaman(self)
         if dialog.exec_() == QDialog.Accepted:
             print("Tambah tanaman")
     
     def tampilkanFormInputEdit(self, tanaman):
-        dialog = TanamanDialog(self, is_edit=True, data=tanaman)
+        dialog = FormInputTanaman(self, is_edit=True, data=tanaman)
         if dialog.exec_() == QDialog.Accepted:
             print("Update tanaman:", tanaman['id'])
     
