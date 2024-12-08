@@ -214,53 +214,17 @@ class TanamanUI(QWidget):
     def __init__(self):
         super().__init__()
         self.__kontrol_tanaman = KontrolTanaman()
-        # self.setup_ui()
-        # self.__layout = QVBoxLayout(self)
-        # self.__layout.setSpacing(25)
-        # self.__layout.setContentsMargins(30, 30, 30, 30)
+        self.__main_layout = QVBoxLayout(self)
+        self.__main_layout.setSpacing(25)
+        self.__main_layout.setContentsMargins(30, 30, 30, 30)
         self.kelolaTanaman()
 
     def kelolaTanaman(self):
         """Menampilkan halaman kelola tanaman"""
         self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
-        self.setup_ui()
-    
-    def setup_ui(self):
-        # if self.__layout.count() > 0:
-        #     return  
-        layout = QVBoxLayout(self)
-        layout.setSpacing(25)
-        layout.setContentsMargins(30, 30, 30, 30)
-        
-        # Tambah Tanaman button
-        tambah_btn = QPushButton("+ Tambah Tanaman")
-        tambah_btn.setFixedHeight(70)
-        tambah_btn.setFont(QFont("Inter", 12, QFont.Bold))
-        tambah_btn.setStyleSheet("""
-            QPushButton {
-                background-color: white;
-                color: #6C4530;
-                border: none;
-                border-radius: 16px;
-                padding: 15px 25px;
-                text-align: center;
-                font-weight: bold;
-                border: 1px solid #E0E0E0;
-            }
-            QPushButton:hover {
-                background-color: #f5f5f5;
-            }
-        """)
-        tambah_btn.clicked.connect(lambda: self.tampilkanFormInput())
-        layout.addWidget(tambah_btn)
-        
-        # Tanaman items
-        for tanaman in self.__tanaman_list:
-            self.add_tanaman_item(tanaman, layout)
-        
-        layout.addStretch()
+        self.perbaruiTampilan()
 
-    def add_tanaman_item(self, tanaman, layout):
+    def add_tanaman_item(self, tanaman):
         item_widget = QWidget()
         item_layout = QHBoxLayout(item_widget)
         item_layout.setContentsMargins(25, 15, 25, 15)
@@ -320,31 +284,62 @@ class TanamanUI(QWidget):
             }
         """)
         
-        layout.addWidget(item_widget)
+        self.__main_layout.addWidget(item_widget)
+
+    def perbaruiTampilan(self):
+        """Memperbarui tampilan setelah perubahan data"""
+        # Hapus semua widget yang ada di layout
+        while self.__main_layout.count():
+            child = self.__main_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        # Tambah Tanaman button
+        tambah_btn = QPushButton("+ Tambah Tanaman")
+        tambah_btn.setFixedHeight(70)
+        tambah_btn.setFont(QFont("Inter", 12, QFont.Bold))
+        tambah_btn.setStyleSheet("""
+            QPushButton {
+                background-color: white;
+                color: #6C4530;
+                border: none;
+                border-radius: 16px;
+                padding: 15px 25px;
+                text-align: center;
+                font-weight: bold;
+                border: 1px solid #E0E0E0;
+            }
+            QPushButton:hover {
+                background-color: #f5f5f5;
+            }
+        """)
+        tambah_btn.clicked.connect(self.tampilkanFormInput)
+        self.__main_layout.addWidget(tambah_btn)
+        
+        # Tanaman items
+        for tanaman in self.__tanaman_list:
+            self.add_tanaman_item(tanaman)
+        
+        self.__main_layout.addStretch()
     
     def tampilkanFormInput(self, is_edit=False, data=None):
         dialog = FormInputTanaman(self, is_edit, data)
         if dialog.exec_() == QDialog.Accepted:
             nama = dialog.nama_input.text()
             waktu_tanam = dialog.datetime_edit.dateTime().toPyDateTime()
+            success = False
             if is_edit:
-                if self.__kontrol_tanaman.prosesUpdateTanaman(data['id'], nama, waktu_tanam):
-                    self.perbaruiTampilan()
+                success = self.__kontrol_tanaman.prosesUpdateTanaman(data['id'], nama, waktu_tanam)
             else:
-                if self.__kontrol_tanaman.prosesTambahTanaman(nama, waktu_tanam):
-                    self.perbaruiTampilan()
+                success = self.__kontrol_tanaman.prosesTambahTanaman(nama, waktu_tanam)
+            
+            if success:
+                self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
+                self.perbaruiTampilan()
     
     def tampilkanKonfirmasi(self, tanaman):
         dialog = DeleteConfirmDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             if self.__kontrol_tanaman.prosesHapusTanaman(tanaman['id']):
+                self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
                 self.perbaruiTampilan()
-    
-    def perbaruiTampilan(self):
-        """Memperbarui tampilan setelah perubahan data"""
-        for i in reversed(range(self.layout().count())):
-            widget = self.layout().itemAt(i).widget()
-            if widget is not None:
-                widget.deleteLater()
-        self.kelolaTanaman()
-

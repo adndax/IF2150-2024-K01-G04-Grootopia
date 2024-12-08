@@ -1,7 +1,7 @@
 # src/frontend/window.py
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
 from .components.sidebar import Sidebar  
-from .pages.tanaman_ui import TanamanUI  # Ganti KelolaTanaman menjadi TanamanUI sesuai perubahan nama class sebelumnya
+from .pages.daftar_tanaman import TanamanUI  # Ganti KelolaTanaman menjadi TanamanUI sesuai perubahan nama class sebelumnya
 from .pages.catatan_perkembangan import CatatanPerkembangan
 from .pages.jadwal_perawatan import JadwalPerawatan
 
