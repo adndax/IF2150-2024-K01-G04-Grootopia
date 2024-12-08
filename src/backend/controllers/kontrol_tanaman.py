@@ -74,3 +74,14 @@ class KontrolTanaman:
             except sqlite3.Error:
                 return False
         return False
+    def prosesHapusTanaman(self, id):
+        """Memproses penghapusan tanaman"""
+        try:
+            cursor = self.__conn.cursor()
+            # Q-004: Menghapus data tanaman
+            cursor.execute("DELETE FROM tanaman WHERE id = ?", (id,))
+            self.__conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"Error saat menghapus tanaman: {e}")
+            return False
