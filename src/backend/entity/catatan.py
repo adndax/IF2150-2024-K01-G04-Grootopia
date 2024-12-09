@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class CatatanPerkembangan:
+class Catatan:
     def __init__(self, id=None, tanaman_id=None, judul_catatan="", tanggal_perkembangan=None, tinggi=0, kondisi="", catatan=""):
         self.__id = id  # ID catatan
         self.__tanaman_id = tanaman_id  # ID tanaman yang terkait
