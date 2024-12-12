@@ -1,6 +1,7 @@
+# src/frontend/window.py
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
 from .components.sidebar import Sidebar  
-from .pages.daftar_tanaman import DaftarTanaman
+from .pages.daftar_tanaman import TanamanUI  # Ganti KelolaTanaman menjadi TanamanUI sesuai perubahan nama class sebelumnya
 from .pages.catatan_perkembangan import CatatanPerkembangan
 from .pages.jadwal_perawatan import JadwalPerawatan
 
@@ -18,7 +19,7 @@ class MainWindow(QMainWindow):
         self.sidebar.pageChanged.connect(self.change_page)
 
         self.stack = QStackedWidget()
-        self.stack.addWidget(DaftarTanaman())
+        self.stack.addWidget(TanamanUI())  
         self.stack.addWidget(CatatanPerkembangan())
         self.stack.addWidget(JadwalPerawatan())
 
