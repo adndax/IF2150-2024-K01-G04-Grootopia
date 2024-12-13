@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Grootopia")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1920, 1080)
 
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
