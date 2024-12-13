@@ -14,7 +14,7 @@ class FormInputTanaman(QDialog):
         self.setStyleSheet("""
             QDialog {
                 background-color: #DDE3D8;
-                border-radius: 20px;
+                border-radius: 10px;
                 color: #6C4530;
             }
         """)
@@ -45,7 +45,7 @@ class FormInputTanaman(QDialog):
             QLineEdit {
                 padding: 12px;
                 background: white;
-                border-radius: 8px;
+                border-radius: 10px;
                 min-height: 30px;
                 font-size: 14px;
                 color: #3D2929;
@@ -66,7 +66,7 @@ class FormInputTanaman(QDialog):
             QDateTimeEdit {
                 padding: 12px;
                 background: white;
-                border-radius: 8px;
+                border-radius: 10px;
                 min-height: 30px;
                 font-size: 14px;
                 color: #6C4530;
@@ -100,7 +100,7 @@ class FormInputTanaman(QDialog):
                 background-color: white;
                 color: #333333;
                 border: none;
-                border-radius: 12px;
+                border-radius: 10px;
                 font-weight: bold;
             }
             QPushButton:hover {
@@ -117,7 +117,7 @@ class FormInputTanaman(QDialog):
                 background-color: #59694D;
                 color: white;
                 border: none;
-                border-radius: 12px;
+                border-radius: 10px;
                 font-weight: bold;
             }
             QPushButton:hover {
@@ -186,7 +186,7 @@ class DeleteConfirmDialog(QDialog):
                 background-color: white;
                 color: #333333;
                 border: none;
-                border-radius: 12px;
+                border-radius: 10px;
                 font-weight: bold;
             }
             QPushButton:hover {
@@ -203,7 +203,7 @@ class DeleteConfirmDialog(QDialog):
                 background-color: #9B2C2C;
                 color: white;
                 border: none;
-                border-radius: 12px;
+                border-radius: 10px;
                 font-weight: bold;
             }
             QPushButton:hover {
@@ -231,8 +231,35 @@ class TanamanUI(QWidget):
         # Container untuk tombol Tambah
         self.header_widget = QWidget()
         header_layout = QVBoxLayout(self.header_widget)
-        header_layout.setContentsMargins(30, 30, 30, 15)
+        header_layout.setContentsMargins(30, 30, 30, 10)
         
+        # Judul "Tanaman"
+        title_label = QLabel("Tanaman")
+        title_label.setFont(QFont("Inter", 30, QFont.Bold))
+        title_label.setStyleSheet("color: #59694D;")
+        title_label.setAlignment(Qt.AlignLeft)
+        header_layout.addWidget(title_label)
+
+        # Search Bar
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Cari tanaman...")
+        self.search_bar.setFont(QFont("Inter", 12))
+        self.search_bar.setStyleSheet("""
+            QLineEdit {
+                padding: 12px;
+                background: white;
+                border-radius: 10px;
+                border: 1px solid #E0E0E0;
+                font-size: 14px;
+                color: #6C4530;
+                margin-bottom: 5;
+            }
+        """)
+        self.search_bar.textChanged.connect(self.filter_tanaman)
+        header_layout.addWidget(self.search_bar)
+
+        self.__main_layout.addWidget(self.header_widget)
+
         # Tambah Tanaman button
         tambah_btn = QPushButton("+ Tambah Tanaman")
         tambah_btn.setFixedHeight(50)
@@ -242,8 +269,8 @@ class TanamanUI(QWidget):
                 background-color: white;
                 color: #6C4530;
                 border: none;
-                border-radius: 16px;
-                padding: 15px 25px;
+                border-radius: 10px;
+                padding: 15px 20px;
                 text-align: center;
                 font-weight: bold;
                 border: 1px solid #E0E0E0;
@@ -266,11 +293,11 @@ class TanamanUI(QWidget):
                 background-color: transparent;
             }
             QScrollBar:vertical {
-                background: #3D2929;
+                background: #EBF1E6;
                 width: 10px;
             }
             QScrollBar::handle:vertical {
-                background: #3D2929;
+                background: #59694D;
                 border-radius: 5px;
             }
         """)
@@ -278,7 +305,7 @@ class TanamanUI(QWidget):
         # Container untuk item-item tanaman
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setSpacing(20)
+        self.scroll_layout.setSpacing(10)
         self.scroll_layout.setContentsMargins(30, 15, 30, 30)
         scroll.setWidget(self.scroll_content)
         
@@ -288,6 +315,13 @@ class TanamanUI(QWidget):
 
     def kelolaTanaman(self):
         self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
+        self.filtered_list = self.__tanaman_list 
+        self.perbaruiTampilan()
+
+    def filter_tanaman(self, query):
+        """Memfilter daftar tanaman berdasarkan query pencarian"""
+        query = query.lower()
+        self.filtered_list = [tanaman for tanaman in self.__tanaman_list if query in tanaman['nama'].lower()]
         self.perbaruiTampilan()
 
     def tanaman_item(self, tanaman):
@@ -315,7 +349,7 @@ class TanamanUI(QWidget):
             QPushButton {
                 background-color: #59694D;
                 color: white;
-                border-radius: 12px;
+                border-radius: 10px;
                 font-weight: bold;
                 min-height: 30px;
             }
@@ -333,7 +367,7 @@ class TanamanUI(QWidget):
                 background-color: #9B2C2C;
                 color: white;
                 border: none;
-                border-radius: 12px;
+                border-radius: 10px;
                 font-weight: bold;
                 min-height: 30px;
             }
@@ -351,7 +385,7 @@ class TanamanUI(QWidget):
         item_widget.setStyleSheet("""
             QWidget {
                 background-color: white;
-                border-radius: 16px;
+                border-radius: 10px;
                 border: 1px solid #E0E0E0;
                 min-height: 70px;
             }
@@ -367,7 +401,7 @@ class TanamanUI(QWidget):
             if child.widget():
                 child.widget().deleteLater()
 
-        for tanaman in self.__tanaman_list:
+        for tanaman in self.filtered_list:
             self.tanaman_item(tanaman)
         
         self.scroll_layout.addStretch()
