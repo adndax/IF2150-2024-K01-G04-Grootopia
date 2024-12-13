@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QLineEdit, QDialog, QHBoxLayout, QScrollArea, QMessageBox,QDateTimeEdit, QSpinBox
 )
 from src.backend.controllers.manajer_catatan import KontrolCatatanPerkembangan
+from src.backend.controllers.kontrol_tanaman import KontrolTanaman
 from datetime import datetime
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QFont, QIcon
@@ -502,6 +503,7 @@ class FormInputCatatan(QDialog):
             }
         """)
 
+        self.kontrol_tanaman = KontrolTanaman() 
         self.setup_ui(is_edit, data)
         
     def setup_ui(self, is_edit, data):
@@ -518,17 +520,16 @@ class FormInputCatatan(QDialog):
 
         # Input Fields
 
-        # ID Tanaman (sementara inputan dulu nanti diganti jadi dropdown)
-        nama_label = QLabel("ID Tanaman")
+        # ID Tanaman (dropdown)
+        nama_label = QLabel("Nama Tanaman")
         nama_label.setFont(QFont("Inter", 12, QFont.Bold))
         nama_label.setStyleSheet("color: #3D2929")
         layout.addWidget(nama_label)
 
-        self.tanaman_id_input = QLineEdit(self)
-        self.tanaman_id_input.setPlaceholderText("Masukkan ID Tanaman")
+        self.tanaman_id_input = QComboBox(self)
         self.tanaman_id_input.setFont(QFont("Inter", 12))
         self.tanaman_id_input.setStyleSheet("""
-            QLineEdit {
+            QComboBox {
                 padding: 12px;
                 background: white;
                 border-radius: 10px;
@@ -538,6 +539,12 @@ class FormInputCatatan(QDialog):
             }
         """)
         layout.addWidget(self.tanaman_id_input)
+
+        # Ambil daftar tanaman dari database
+        tanaman_list = self.kontrol_tanaman.getDaftarTanaman()
+        for tanaman in tanaman_list:
+            # Masukkan nama tanaman ke dropdown, simpan ID sebagai data
+            self.tanaman_id_input.addItem(tanaman['nama'], tanaman['id'])
 
         # Judul Catatan
         judul_catatan_label = QLabel("Judul Catatan")
@@ -696,9 +703,8 @@ class FormInputCatatan(QDialog):
         
         layout.addLayout(button_layout)
         
-        # Pre-fill data if editing
         if is_edit and data:
-            self.tanaman_id_input.setText(str(data["tanaman_id"]))
+            self.tanaman_id_input.setCurrentText(str(data["tanaman_id"]))
             self.judul_catatan_input.setText(data["judul_catatan"])
             self.tanggal_perkembangan_input.setDateTime(data["tanggal_perkembangan"])
             self.tinggi_input.setValue(data["tinggi"])
@@ -779,10 +785,10 @@ class FormInputCatatan(QDialog):
         
     def get_data(self):
         return {
-            "tanaman_id": int(self.tanaman_id_input.text()) if self.tanaman_id_input.text().isdigit() else None,  # Ambil ID tanaman, pastikan validasi angka
-            "judul_catatan": self.judul_catatan_input.text(),  # Judul catatan dari input pengguna
-            "tanggal_perkembangan": self.tanggal_perkembangan_input.dateTime().toPyDateTime(),  # Tanggal perkembangan dari input
-            "tinggi": self.tinggi_input.value(),  # Tinggi tanaman dari input pengguna
-            "kondisi": self.kondisi_input.currentText(),  # Kondisi tanaman dari input
-            "catatan": self.catatan_input.toPlainText()  # Catatan tambahan dari input
+            "tanaman_id": self.tanaman_id_input.currentData(),  # Ambil ID tanaman dari dropdown
+            "judul_catatan": self.judul_catatan_input.text(),
+            "tanggal_perkembangan": self.tanggal_perkembangan_input.dateTime().toPyDateTime(),
+            "tinggi": self.tinggi_input.value(),
+            "kondisi": self.kondisi_input.currentText(),
+            "catatan": self.catatan_input.toPlainText()
         }
