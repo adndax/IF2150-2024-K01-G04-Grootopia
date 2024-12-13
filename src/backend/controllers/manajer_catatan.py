@@ -84,7 +84,7 @@ class KontrolCatatanPerkembangan:
     def prosesUpdateCatatan(self, id, tanaman_id, judul_catatan, tanggal_perkembangan, tinggi, kondisi, catatan):
         if self.validasiInput(tanaman_id, judul_catatan, tanggal_perkembangan, tinggi, kondisi, catatan):
             try:
-                catatan_perkembangan = CatatanPerkembangan(
+                catatan_perkembangan = Catatan(
                     id=id,
                     tanaman_id=tanaman_id, 
                     judul_catatan=judul_catatan, 
