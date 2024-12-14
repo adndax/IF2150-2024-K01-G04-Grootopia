@@ -222,10 +222,6 @@ class CatatanPerkembangan(QWidget):
         nama_info.setFont(QFont("Inter", 12, QFont.Bold))
         nama_info.setStyleSheet("color: #59694D; border: none;")
 
-        judul_info = QLabel(f"Judul Catatan: {catatan['judul_catatan']}")
-        judul_info.setFont(QFont("Inter", 12))
-        judul_info.setStyleSheet("color: #59694D; border: none;")
-
         tanggal_info = QLabel(f"Tanggal Perkembangan: {catatan.get('tanggal_perkembangan', 'Tidak tersedia')}")
         tanggal_info.setFont(QFont("Inter", 12))
         tanggal_info.setStyleSheet("color: #59694D; border: none;")
@@ -244,7 +240,6 @@ class CatatanPerkembangan(QWidget):
 
         # Tambahkan ke layout deskripsi
         deskripsi_layout.addWidget(nama_info)
-        deskripsi_layout.addWidget(judul_info)
         deskripsi_layout.addWidget(tanggal_info)
         deskripsi_layout.addWidget(tinggi_info)
         deskripsi_layout.addWidget(kondisi_info)
