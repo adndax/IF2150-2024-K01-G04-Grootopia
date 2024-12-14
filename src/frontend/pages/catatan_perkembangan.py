@@ -12,6 +12,7 @@ import os
 class CatatanPerkembangan(QWidget):
     def __init__(self, parent=None):
         self.__kontrol_catatan = KontrolCatatanPerkembangan()
+        self.__kontrol_tanaman = KontrolTanaman()
         super().__init__(parent)
 
         # Main layout untuk seluruh widget
@@ -52,7 +53,7 @@ class CatatanPerkembangan(QWidget):
         self.__main_layout.addWidget(self.header_widget)
 
         # Tombol tambah catatan
-        tambah_btn = QPushButton("+ Tambah Catatan")
+        tambah_btn = QPushButton("+ Tambah Catatan Perkembangan Tanaman")
         tambah_btn.setFixedHeight(50)
         tambah_btn.setFont(QFont("Inter", 12, QFont.Bold))
         tambah_btn.setStyleSheet("""
@@ -96,7 +97,7 @@ class CatatanPerkembangan(QWidget):
         # Container untuk item-item tanaman
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setSpacing(10)
+        self.scroll_layout.setSpacing(12)
         self.scroll_layout.setContentsMargins(30, 15, 30, 30)
         scroll.setWidget(self.scroll_content)
         
@@ -119,43 +120,64 @@ class CatatanPerkembangan(QWidget):
         self.update_daftar_catatan(filtered=True)
 
     def tanaman_item(self, catatan):
-    
+        """Membuat item catatan dengan dropdown untuk informasi tambahan"""
         item_widget = QWidget()
-        item_widget.setFixedHeight(70)
-        item_layout = QHBoxLayout(item_widget)
-        item_layout.setContentsMargins(25, 20, 25, 20)
-        item_layout.setSpacing(20)
+        item_widget.setStyleSheet("""
+            QWidget {
+                background-color: white;
+                border-radius: 10px;
+                border: 1px solid #E0E0E0;
+            }
+        """)
+        main_layout = QVBoxLayout(item_widget)
+        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+
+        # Header Layout
+        header_layout = QHBoxLayout()
+        header_layout.setSpacing(10)
         
+        # Tombol Dropdown
+        dropdown_btn = QPushButton("▼")
+        dropdown_btn.setFixedSize(30, 30)
+        dropdown_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #59694D; /* Warna hijau tua */
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                border: none;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #4a5a3e;
+            }
+        """)
+        
+        # Nama Tanaman
         nama_label = QLabel(catatan['judul_catatan'])
         nama_label.setFont(QFont("Inter", 12, QFont.Bold))
-        nama_label.setAlignment(Qt.AlignHCenter)
-        nama_label.setStyleSheet("""QLabel {
-                                    color: #6C4530;
-                                    border: none;
-                                    margin-top: 10;
-                                }
-                            """)
+        nama_label.setStyleSheet("color: #6C4530; border: none;")
         
+        # Tombol Sunting
         sunting_btn = QPushButton("SUNTING")
         sunting_btn.setFixedSize(100, 30)
-        sunting_btn.setFont(QFont("Inter", 12, QFont.Bold))
         sunting_btn.setStyleSheet("""
             QPushButton {
                 background-color: #59694D;
                 color: white;
                 border-radius: 10px;
                 font-weight: bold;
-                min-height: 30px;
             }
             QPushButton:hover {
                 background-color: #4a5a3e;
             }
         """)
         sunting_btn.clicked.connect(lambda _, id=catatan['id']: self.edit_catatan(id))
-        
+
+        # Tombol Hapus
         hapus_btn = QPushButton("HAPUS")
         hapus_btn.setFixedSize(100, 30)
-        hapus_btn.setFont(QFont("Inter", 12, QFont.Bold))
         hapus_btn.setStyleSheet("""
             QPushButton {
                 background-color: #9B2C2C;
@@ -163,7 +185,6 @@ class CatatanPerkembangan(QWidget):
                 border: none;
                 border-radius: 10px;
                 font-weight: bold;
-                min-height: 30px;
             }
             QPushButton:hover {
                 background-color: #8b1c1c;
@@ -171,22 +192,81 @@ class CatatanPerkembangan(QWidget):
         """)
         hapus_btn.clicked.connect(lambda _, id=catatan['id']: self.hapus_catatan(id))
         
-        item_layout.addWidget(nama_label)
-        item_layout.addStretch()
-        item_layout.addWidget(sunting_btn)
-        item_layout.addWidget(hapus_btn)
-        
-        item_widget.setStyleSheet("""
+        header_layout.addWidget(dropdown_btn)
+        header_layout.addWidget(nama_label)
+        header_layout.addStretch()
+        header_layout.addWidget(sunting_btn)
+        header_layout.addWidget(hapus_btn)
+
+        # Deskripsi Layout (Hidden by Default)
+        deskripsi_widget = QWidget()
+        deskripsi_widget.setStyleSheet("""
             QWidget {
-                background-color: white;
-                border-radius: 10px;
-                border: 1px solid #E0E0E0;
-                min-height: 70px;
+                background-color: #F5F5F5;
+                border-radius: 5px;
+                padding: 10px;
             }
         """)
-        
+        deskripsi_layout = QVBoxLayout(deskripsi_widget)
+        deskripsi_layout.setSpacing(5)
+        deskripsi_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Ambil daftar tanaman dari backend
+        tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
+
+        # Dapatkan nama tanaman berdasarkan tanaman_id
+        nama_tanaman = self.get_nama_tanaman(catatan.get('tanaman_id'), tanaman_list)
+
+        # Buat label dengan nama tanaman yang benar
+        nama_info = QLabel(f"Nama Tanaman: {nama_tanaman}")
+        nama_info.setFont(QFont("Inter", 12, QFont.Bold))
+        nama_info.setStyleSheet("color: #59694D; border: none;")
+
+        judul_info = QLabel(f"Judul Catatan: {catatan['judul_catatan']}")
+        judul_info.setFont(QFont("Inter", 12))
+        judul_info.setStyleSheet("color: #59694D; border: none;")
+
+        tanggal_info = QLabel(f"Tanggal Perkembangan: {catatan.get('tanggal_perkembangan', 'Tidak tersedia')}")
+        tanggal_info.setFont(QFont("Inter", 12))
+        tanggal_info.setStyleSheet("color: #59694D; border: none;")
+
+        tinggi_info = QLabel(f"Tinggi Tanaman: {catatan.get('tinggi', 'Tidak tersedia')} cm")
+        tinggi_info.setFont(QFont("Inter", 12))
+        tinggi_info.setStyleSheet("color: #59694D; border: none;")
+
+        kondisi_info = QLabel(f"Kondisi Tanaman: {catatan.get('kondisi', 'Tidak tersedia')}")
+        kondisi_info.setFont(QFont("Inter", 12))
+        kondisi_info.setStyleSheet("color: #59694D; border: none;")
+
+        catatan_info = QLabel(f"Catatan: {catatan.get('catatan', 'Tidak tersedia')}")
+        catatan_info.setFont(QFont("Inter", 12))
+        catatan_info.setStyleSheet("color: #59694D; border: none;")
+
+        # Tambahkan ke layout deskripsi
+        deskripsi_layout.addWidget(nama_info)
+        deskripsi_layout.addWidget(judul_info)
+        deskripsi_layout.addWidget(tanggal_info)
+        deskripsi_layout.addWidget(tinggi_info)
+        deskripsi_layout.addWidget(kondisi_info)
+        deskripsi_layout.addWidget(catatan_info)
+
+        # Default: Sembunyikan deskripsi
+        deskripsi_widget.setVisible(False)
+
+        # Tambahkan ke layout utama
+        main_layout.addLayout(header_layout)
+        main_layout.addWidget(deskripsi_widget)
+
+        # Fungsi toggle dropdown
+        def toggle_dropdown():
+            is_visible = deskripsi_widget.isVisible()
+            deskripsi_widget.setVisible(not is_visible)
+            dropdown_btn.setText("▲" if not is_visible else "▼")
+
+        dropdown_btn.clicked.connect(toggle_dropdown)
+
+        # Tambahkan item ke daftar
         self.scroll_layout.addWidget(item_widget)
-        self.scroll_content.setStyleSheet("QWidget { min-height: 0px; }")
 
     def tambah_catatan(self):
         dialog = FormInputCatatan(parent=self)
@@ -492,6 +572,13 @@ class CatatanPerkembangan(QWidget):
         
         self.scroll_layout.addStretch()
 
+    def get_nama_tanaman(self, tanaman_id, tanaman_list):
+        """Cari nama tanaman berdasarkan tanaman_id."""
+        for tanaman in tanaman_list:
+            if tanaman['id'] == tanaman_id:
+                return tanaman['nama']  # Ambil nama tanaman jika ditemukan
+        return "Tidak tersedia"  # Jika tidak ditemukan
+
 
 class FormInputCatatan(QDialog):
     def __init__(self, parent=None, is_edit=False, data=None):
@@ -507,7 +594,7 @@ class FormInputCatatan(QDialog):
             }
         """)
 
-        self.kontrol_tanaman = KontrolTanaman() 
+        self.__kontrol_tanaman = KontrolTanaman() 
         self.setup_ui(is_edit, data)
         
     def setup_ui(self, is_edit, data):
@@ -545,7 +632,7 @@ class FormInputCatatan(QDialog):
         layout.addWidget(self.tanaman_id_input)
 
         # Ambil daftar tanaman dari database
-        tanaman_list = self.kontrol_tanaman.getDaftarTanaman()
+        tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
         if(is_edit==0):
            
             for tanaman in tanaman_list:
