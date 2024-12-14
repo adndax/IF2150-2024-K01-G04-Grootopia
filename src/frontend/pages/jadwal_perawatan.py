@@ -311,6 +311,13 @@ class JadwalUI(QWidget):
         self.__kontrol_jadwal = KontrolJadwal()
         self.__kontrol_tanaman = KontrolTanaman()
 
+        # Atur UI
+        self.setup_ui()
+
+        # Load jadwal
+        self.kelolaJadwal()
+
+    def setup_ui(self):
         # Main layout
         self.__main_layout = QVBoxLayout(self)
         self.__main_layout.setSpacing(0)
@@ -397,8 +404,6 @@ class JadwalUI(QWidget):
 
         self.__main_layout.addWidget(scroll)
 
-        # Load jadwal
-        self.kelolaJadwal()
 
     def kelolaJadwal(self):
         self.__jadwal_list = self.__kontrol_jadwal.getDaftarJadwal()
