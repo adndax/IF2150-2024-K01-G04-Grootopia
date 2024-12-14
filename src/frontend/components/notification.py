@@ -20,7 +20,7 @@
 # NotificationWindow , Pemberitahuan : class
 
 # ALGORITMA
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QPixmap , QFont , QIcon
 from PyQt5.QtWidgets import QMainWindow , QLabel , QPushButton , QVBoxLayout , QWidget , QHBoxLayout , QFrame , QGraphicsDropShadowEffect
 from datetime import datetime , timedelta
@@ -40,13 +40,23 @@ class Pemberitahuan :
         self.waktu_perawatan = timedelta(seconds = waktu_perawatan)
         self.last_perawatan = last_perawatan
 
-    def cekNotifikasi(self) :
-        now = datetime.now()
-        target = self.last_perawatan + self.waktu_perawatan
-        return (now >= target)
+    def cekNotifikasi(self):
+        daftar_jadwal = self.kontrol_jadwal.getDaftarJadwal()
+        sekarang = QDateTime.currentDateTime().toPyDateTime()
+        for jadwal in daftar_jadwal :
+            waktu_jadwal = jadwal['waktu']
+            selisih = (waktu_jadwal - sekarang).total_seconds()
+            if (0 < selisih <= 3600) :
+                self.tampilkanNotifikasi(self , jadwal)
     
-    def resetNotifikasi(self):
+    def resetNotifikasi(self) :
         self.last_perawatan = datetime.now()
+
+    def tampilkanNotifikasi(self , jadwal) :
+        nama_tanaman = jadwal['nama']
+        self.notif_window = NotificationWindow(self , nama_tanaman)
+        self.notif_window.show()
+
 
 class NotificationWindow(QMainWindow) :
     # SPESIFIKASI LOKAL
