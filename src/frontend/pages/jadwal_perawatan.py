@@ -1,9 +1,9 @@
-import os
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QLabel, 
                              QDialog, QLineEdit, QDateTimeEdit, QHBoxLayout,
-                             QSizePolicy, QScrollArea, QApplication, QComboBox)
+                             QScrollArea, QComboBox, QApplication)
 from PyQt5.QtCore import Qt, QDateTime
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont
+
 from src.backend.controllers.kontrol_jadwal import KontrolJadwal
 from src.backend.controllers.kontrol_tanaman import KontrolTanaman
 
@@ -11,10 +11,12 @@ class FormInputJadwal(QDialog):
     def __init__(self, parent=None, is_edit=False, data=None, kontrol_tanaman=None):
         super().__init__(parent)
         self.__kontrol_tanaman = kontrol_tanaman
-        self.daftar_tanaman = self.__kontrol_tanaman.getDaftarTanaman()  # Ambil daftar tanaman dari kontrol_jadwal
+        self.daftar_tanaman = self.__kontrol_tanaman.getDaftarTanaman()
+        
         self.setWindowTitle("Tambah Jadwal Perawatan" if not is_edit else "Sunting Jadwal Perawatan")
         self.setFixedSize(800, 600)
         self.setStyleSheet(""" QDialog { background-color: #DDE3D8; border-radius: 20px; } """)
+        
         self.setup_ui(is_edit, data)
 
     def setup_ui(self, is_edit, data):
@@ -128,6 +130,74 @@ class FormInputJadwal(QDialog):
 
         layout.addLayout(button_layout)
 
+class DeleteConfirmDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Konfirmasi")
+        self.setFixedSize(400, 450)
+        self.setStyleSheet("background-color: #DDE3D8;")
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setSpacing(30)
+        layout.setContentsMargins(30, 35, 30, 35)
+        
+        # Title
+        title = QLabel("KONFIRMASI")
+        title.setAlignment(Qt.AlignCenter)
+        title.setFont(QFont("Inter", 14, QFont.Bold))
+        layout.addWidget(title)
+        
+        # Confirmation text
+        confirm_text = QLabel("Apakah anda yakin ingin\nmenghapus Jadwal Perawatan ini?")
+        confirm_text.setAlignment(Qt.AlignCenter)
+        confirm_text.setFont(QFont("Inter", 12))
+        layout.addWidget(confirm_text)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(20)
+        
+        batal_btn = QPushButton("BATAL")
+        batal_btn.setFixedSize(150, 45)
+        batal_btn.setFont(QFont("Inter", 12, QFont.Bold))
+        batal_btn.setStyleSheet("""
+            QPushButton {
+                background-color: white;
+                color: #333333;
+                border: none;
+                border-radius: 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #f0f0f0;
+            }
+        """)
+        batal_btn.clicked.connect(self.reject)
+        
+        hapus_btn = QPushButton("HAPUS")
+        hapus_btn.setFixedSize(150, 45)
+        hapus_btn.setFont(QFont("Inter", 12, QFont.Bold))
+        hapus_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #9B2C2C;
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #8b1c1c;
+            }
+        """)
+        hapus_btn.clicked.connect(self.accept)
+        
+        button_layout.addWidget(batal_btn)
+        button_layout.addWidget(hapus_btn)
+        button_layout.setAlignment(Qt.AlignCenter)
+        
+        layout.addLayout(button_layout)
 
 class JadwalUI(QWidget):
     def __init__(self):
@@ -209,7 +279,7 @@ class JadwalUI(QWidget):
         item_layout.setSpacing(20)
 
         # Deskripsi label
-        deskripsi_label = QLabel(f"{jadwal['nama_tanaman']} | {jadwal['deskripsi']} | {jadwal['waktu']}|")
+        deskripsi_label = QLabel(f"{jadwal['nama_tanaman']} | {jadwal['deskripsi']} | {jadwal['waktu']}")
         deskripsi_label.setFont(QFont("Inter", 12, QFont.Bold))
         deskripsi_label.setStyleSheet("color: #6C4530; border: none;")
         deskripsi_label.setWordWrap(True)  
@@ -226,6 +296,9 @@ class JadwalUI(QWidget):
                 border-radius: 12px;
                 font-weight: bold;
             }
+            QPushButton:hover {
+                background-color: #4a5a3e;
+            }
         """)
         sunting_btn.clicked.connect(lambda: self.tampilkanFormInput(True, jadwal))
 
@@ -240,6 +313,9 @@ class JadwalUI(QWidget):
                 border: none;
                 border-radius: 12px;
                 font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #8b1c1c;
             }
         """)
         hapus_btn.clicked.connect(lambda: self.hapusJadwal(jadwal))
@@ -256,11 +332,10 @@ class JadwalUI(QWidget):
                                         border-radius: 16px;
                                         min-height: 60px;
                                         border: 1px solid #E0E0E0;
-                                        }
+                                    }
                                     """)
 
         self.scroll_layout.addWidget(item_widget)
-
 
     def perbaruiTampilan(self):
         """Memperbarui tampilan setelah perubahan data"""
@@ -285,96 +360,10 @@ class JadwalUI(QWidget):
         if form.exec_() == QDialog.Accepted:
             deskripsi = form.deskripsi_input.text()
             waktu = form.datetime_edit.dateTime().toPyDateTime()
-            tanaman_id = form.tanaman_combo.currentData()  # Ambil id tanaman yang dipilih
+            tanaman_id = form.tanaman_combo.currentData()  
 
             if is_edit and jadwal:
                 self.__kontrol_jadwal.updateJadwal(jadwal['id'], deskripsi, waktu, tanaman_id)
             else:
                 self.__kontrol_jadwal.tambahJadwal(deskripsi, waktu, tanaman_id)
-
             self.kelolaJadwal()
-
-
-class DeleteConfirmDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Konfirmasi")
-        self.setFixedSize(400, 450)
-        self.setStyleSheet("background-color: #DDE3D8;")
-        self.setup_ui()
-
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(30)
-        layout.setContentsMargins(30, 35, 30, 35)
-        
-        # Title
-        title = QLabel("KONFIRMASI")
-        title.setAlignment(Qt.AlignCenter)
-        title.setFont(QFont("Inter", 14, QFont.Bold))
-        layout.addWidget(title)
-        
-        # Icon container
-        icon_container = QWidget()
-        icon_layout = QVBoxLayout(icon_container)
-        icon_layout.setContentsMargins(0, 20, 0, 20)
-        
-        icon_label = QLabel()
-        icon_path = os.path.join("img", "delete.svg")
-        if os.path.exists(icon_path):
-            icon_pixmap = QIcon(icon_path).pixmap(150, 150)
-            icon_label.setPixmap(icon_pixmap)
-        icon_label.setAlignment(Qt.AlignCenter)
-        icon_layout.addWidget(icon_label)
-        
-        layout.addWidget(icon_container)
-        
-        # Confirmation text
-        confirm_text = QLabel("Apakah anda yakin ingin\nmenghapus Jadwal Perawatan ini?")
-        confirm_text.setAlignment(Qt.AlignCenter)
-        confirm_text.setFont(QFont("Inter", 12))
-        layout.addWidget(confirm_text)
-        
-        # Buttons
-        button_layout = QHBoxLayout()
-        button_layout.setSpacing(20)
-        
-        batal_btn = QPushButton("BATAL")
-        batal_btn.setFixedSize(150, 45)
-        batal_btn.setFont(QFont("Inter", 12, QFont.Bold))
-        batal_btn.setStyleSheet("""
-            QPushButton {
-                background-color: white;
-                color: #333333;
-                border: none;
-                border-radius: 12px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #f0f0f0;
-            }
-        """)
-        batal_btn.clicked.connect(self.reject)
-        
-        hapus_btn = QPushButton("HAPUS")
-        hapus_btn.setFixedSize(150, 45)
-        hapus_btn.setFont(QFont("Inter", 12, QFont.Bold))
-        hapus_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #9B2C2C;
-                color: white;
-                border: none;
-                border-radius: 12px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #8b1c1c;
-            }
-        """)
-        hapus_btn.clicked.connect(self.accept)
-        
-        button_layout.addWidget(batal_btn)
-        button_layout.addWidget(hapus_btn)
-        button_layout.setAlignment(Qt.AlignCenter)
-        
-        layout.addLayout(button_layout)
