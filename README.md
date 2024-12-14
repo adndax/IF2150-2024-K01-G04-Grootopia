@@ -4,7 +4,7 @@ Grootopia adalah aplikasi manajemen kebun yang dirancang untuk mempermudah penge
 Aplikasi ini bertujuan untuk membantu pengguna dalam meningkatkan efisiensi dan produktivitas pengelolaan kebun.  
 
 # Fitur Utama   
-1. Pengelolaan Informasi Tanaman
+1. Pengelolaan Daftar Tanaman
 2. Catatan Perkembangan Tanaman
 3. Pengelolaan Jadwal Perawatan
 4. Pemberitahuan Perawatan
@@ -74,13 +74,65 @@ pip install -r requirements.txt
 ```bash
 python src/main.py
 ```
+### DATABASE OVERVIEW
+Database: SQLite
+Nama File: grootopia.db
 
-## Development
+Terdiri dari 3 tabel utama yang saling berelasi:
+- Tanaman (Menyimpan informasi dasar tanaman)
+- Jadwal Perawatan (Menyimpan jadwal perawatan untuk setiap tanaman) 
+- Catatan Perkembangan (Mencatat riwayat perkembangan tanaman)
 
-### Running Tests
-```bash
-pytest tests/
-```
+### TABLE SCHEMAS
+
+1. TANAMAN
+--------------------------------------------------------------------------------
+CREATE TABLE tanaman (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    nama            TEXT NOT NULL,           -- Nama tanaman
+    waktu_tanam     DATETIME NOT NULL        -- Waktu tanaman ditanam
+);
+
+2. JADWAL PERAWATAN 
+--------------------------------------------------------------------------------
+CREATE TABLE jadwal_perawatan (
+    id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+    deskripsi               TEXT NOT NULL,    -- Deskripsi perawatan
+    waktu                   DATETIME NOT NULL, -- Waktu perawatan
+    tanaman_id              INTEGER NOT NULL,  -- Foreign key ke tabel tanaman
+    jenis_perawatan         TEXT NOT NULL DEFAULT 'Pemupukan',    -- Jenis perawatan
+    perulangan_perawatan    TEXT NOT NULL DEFAULT 'Harian',  -- Frekuensi perawatan
+    FOREIGN KEY (tanaman_id) REFERENCES tanaman(id)
+);
+
+3. CATATAN PERKEMBANGAN
+--------------------------------------------------------------------------------
+CREATE TABLE catatan_perkembangan (
+    id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+    tanaman_id              INTEGER NOT NULL,  -- Foreign key ke tabel tanaman
+    judul_catatan           TEXT NOT NULL,     -- Judul catatan
+    tanggal_perkembangan    DATETIME NOT NULL, -- Tanggal pencatatan
+    tinggi                  INTEGER NOT NULL,  -- Tinggi tanaman (cm)
+    kondisi                 TEXT NOT NULL,     -- Kondisi tanaman
+    catatan                 TEXT NOT NULL,     -- Detail catatan
+    FOREIGN KEY (tanaman_id) REFERENCES tanaman(id)
+);
+
+### RELASI ANTAR TABEL
+- Tabel jadwal_perawatan dan catatan_perkembangan memiliki foreign key tanaman_id 
+  yang merujuk ke id pada tabel tanaman
+- Penghapusan data di tabel tanaman akan mempengaruhi data terkait di 
+  tabel jadwal_perawatan dan catatan_perkembangan
+
+### FORMAT DATA
+- Semua field DATETIME menggunakan format: 'YYYY-MM-DD HH:MM:SS'
+- Jenis perawatan default: 'Pemupukan'
+- Perulangan perawatan default: 'Harian'
+
+### DATABASE CONSTRAINT
+- Semua field yang ditandai NOT NULL wajib diisi
+- Foreign key constraints diaktifkan untuk menjaga integritas data
+- ID di semua tabel bersifat auto-increment
 
 
 
