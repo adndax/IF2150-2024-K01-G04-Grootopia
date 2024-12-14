@@ -355,7 +355,7 @@ class TanamanUI(QWidget):
                 border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #F5F5F5;
+                background-color: #4a5a3e;
             }
         """)
         
