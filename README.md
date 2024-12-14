@@ -4,7 +4,7 @@ Grootopia adalah aplikasi manajemen kebun yang dirancang untuk mempermudah penge
 Aplikasi ini bertujuan untuk membantu pengguna dalam meningkatkan efisiensi dan produktivitas pengelolaan kebun.  
 
 # Fitur Utama   
-1. Pengelolaan Informasi Tanaman
+1. Pengelolaan Daftar Tanaman
 2. Catatan Perkembangan Tanaman
 3. Pengelolaan Jadwal Perawatan
 4. Pemberitahuan Perawatan
