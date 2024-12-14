@@ -16,6 +16,7 @@ class Sidebar(QWidget):
         root_dir = os.path.dirname(src_dir)
         self.img_path = os.path.join(root_dir, 'img')
         self.setup_ui()
+
     def setup_ui(self):
         self.inter_font = QFont("Arial", 12, QFont.Bold)
         
@@ -68,7 +69,7 @@ class Sidebar(QWidget):
 
         # Grow Happily! label with icon
         grow_layout = QHBoxLayout()
-        grow_layout.setContentsMargins(8, 0, 0, 0)  # Sejajarkan dengan konten lain
+        grow_layout.setContentsMargins(8, 0, 0, 0)
         pucuk_icon = QLabel()
         pucuk_path = os.path.join(self.img_path, 'pucuk.svg')
         if os.path.exists(pucuk_path):
@@ -85,30 +86,29 @@ class Sidebar(QWidget):
         grow_layout.addStretch()
         content_layout.addLayout(grow_layout)
         # Navigation buttons
-        nav_items = [
-            ("Tanaman", os.path.join(self.img_path, 'tanaman.svg')),
-            ("Catatan Perkembangan", os.path.join(self.img_path, 'book.svg')),
-            ("Jadwal Perawatan", os.path.join(self.img_path, 'calender.svg'))
+        self.nav_items = [
+            ("Tanaman", os.path.join(self.img_path, 'tanaman_black.svg'), os.path.join(self.img_path, 'tanaman_white.svg')),
+            ("Catatan Perkembangan", os.path.join(self.img_path, 'book_black.svg'), os.path.join(self.img_path, 'book_white.svg')),
+            ("Jadwal Perawatan", os.path.join(self.img_path, 'calendar_black.svg'), os.path.join(self.img_path, 'calendar_white.svg'))
         ]
         
         self.nav_buttons = []
-        for idx, (text, icon_path) in enumerate(nav_items):
+        for idx, (text, icon_black_path, icon_white_path) in enumerate(self.nav_items):
             btn = QPushButton(text)
             btn.setFont(self.inter_font)
-            if os.path.exists(icon_path):
-                icon = QIcon(icon_path)
+            if os.path.exists(icon_black_path):
+                icon = QIcon(icon_black_path)
                 btn.setIcon(icon)
-                btn.setIconSize(QIcon(icon_path).pixmap(24, 24).size())
+                btn.setIconSize(QIcon(icon_black_path).pixmap(24, 24).size())
             
             btn.setStyleSheet("""
                 QPushButton {
                     text-align: left;
-                    padding: 15px;
+                    padding: 10px;
                     padding-right: 30px;
-                    border: none;
                     border-radius: 12px;
                     color: #333333;
-                    min-height: 50px;
+                    min-height: 25px;
                     min-width: 310px;
                     font-weight: bold;
                     margin-right: 20px;  /* Tambah margin kanan */
@@ -130,6 +130,10 @@ class Sidebar(QWidget):
             
         if self.nav_buttons:
             self.nav_buttons[0].setChecked(True)
+
+            text, icon_black_path, icon_white_path = self.nav_items[0]
+            if os.path.exists(icon_white_path):
+                self.nav_buttons[0].setIcon(QIcon(icon_white_path))
             
         content_layout.addStretch()
         layout.addWidget(content_container)
@@ -147,6 +151,15 @@ class Sidebar(QWidget):
         
     def handle_button_click(self, index):
         for i, btn in enumerate(self.nav_buttons):
-            btn.setChecked(i == index)
+            text, icon_black_path, icon_white_path = self.nav_items[i]
+            
+            if i == index:
+                if os.path.exists(icon_white_path):
+                    btn.setIcon(QIcon(icon_white_path))
+                btn.setChecked(True)
+            else:
+                if os.path.exists(icon_black_path):
+                    btn.setIcon(QIcon(icon_black_path))
+                btn.setChecked(False)
         self.pageChanged.emit(index)
 
