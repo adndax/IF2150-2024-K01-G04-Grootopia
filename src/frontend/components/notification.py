@@ -24,6 +24,7 @@ from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QPixmap , QFont , QIcon
 from PyQt5.QtWidgets import QMainWindow , QLabel , QPushButton , QVBoxLayout , QWidget , QHBoxLayout , QFrame , QGraphicsDropShadowEffect
 from datetime import datetime , timedelta
+from src.backend.controllers.kontrol_jadwal import *
 import os
 
 class Pemberitahuan :
