@@ -74,7 +74,7 @@ pip install -r requirements.txt
 ```bash
 python src/main.py
 ```
-###DATABASE OVERVIEW
+### DATABASE OVERVIEW
 Database: SQLite
 Nama File: grootopia.db
 
@@ -83,7 +83,7 @@ Terdiri dari 3 tabel utama yang saling berelasi:
 - Jadwal Perawatan (Menyimpan jadwal perawatan untuk setiap tanaman) 
 - Catatan Perkembangan (Mencatat riwayat perkembangan tanaman)
 
-###TABLE SCHEMAS
+### TABLE SCHEMAS
 
 1. TANAMAN
 --------------------------------------------------------------------------------
@@ -118,18 +118,18 @@ CREATE TABLE catatan_perkembangan (
     FOREIGN KEY (tanaman_id) REFERENCES tanaman(id)
 );
 
-###RELASI ANTAR TABEL
+### RELASI ANTAR TABEL
 - Tabel jadwal_perawatan dan catatan_perkembangan memiliki foreign key tanaman_id 
   yang merujuk ke id pada tabel tanaman
 - Penghapusan data di tabel tanaman akan mempengaruhi data terkait di 
   tabel jadwal_perawatan dan catatan_perkembangan
 
-###FORMAT DATA
+### FORMAT DATA
 - Semua field DATETIME menggunakan format: 'YYYY-MM-DD HH:MM:SS'
 - Jenis perawatan default: 'Pemupukan'
 - Perulangan perawatan default: 'Harian'
 
-###DATABASE CONSTRAINT
+### DATABASE CONSTRAINT
 - Semua field yang ditandai NOT NULL wajib diisi
 - Foreign key constraints diaktifkan untuk menjaga integritas data
 - ID di semua tabel bersifat auto-increment
