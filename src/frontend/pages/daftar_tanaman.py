@@ -305,7 +305,7 @@ class TanamanUI(QWidget):
         # Container untuk item-item tanaman
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setSpacing(15)
+        self.scroll_layout.setSpacing(12)
         self.scroll_layout.setContentsMargins(30, 15, 30, 30)
         scroll.setWidget(self.scroll_content)
         
@@ -347,11 +347,12 @@ class TanamanUI(QWidget):
         dropdown_btn.setFixedSize(30, 30)
         dropdown_btn.setStyleSheet("""
             QPushButton {
-                background-color: #FFFFFF;
-                color: #59694D;
+                background-color: #59694D; /* Warna hijau tua */
+                color: white;
                 font-size: 14px;
                 font-weight: bold;
                 border: none;
+                border-radius: 5px;
             }
             QPushButton:hover {
                 background-color: #F5F5F5;
@@ -420,7 +421,7 @@ class TanamanUI(QWidget):
         nama_info.setStyleSheet("color: #59694D; border: none;")
 
         waktu_info = QLabel(f"Waktu Tanam: {tanaman.get('waktu_tanam', 'Tidak tersedia')}")
-        waktu_info.setFont(QFont("Inter", 12, QFont.Bold))
+        waktu_info.setFont(QFont("Inter", 12))
         waktu_info.setStyleSheet("color: #59694D; border: none;")
 
         deskripsi_layout.addWidget(nama_info)
