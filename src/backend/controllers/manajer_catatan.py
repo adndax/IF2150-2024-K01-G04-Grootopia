@@ -75,6 +75,7 @@ class KontrolCatatanPerkembangan:
                      catatan_perkembangan.getCatatan()['catatan'])
                 )
                 self.__conn.commit()
+                # print("berhasil")
                 return True
             except sqlite3.Error as e:
                 print(f"Error saat menambah catatan: {e}")
@@ -84,6 +85,8 @@ class KontrolCatatanPerkembangan:
     def prosesUpdateCatatan(self, id, tanaman_id, judul_catatan, tanggal_perkembangan, tinggi, kondisi, catatan):
         if self.validasiInput(tanaman_id, judul_catatan, tanggal_perkembangan, tinggi, kondisi, catatan):
             try:
+                # if isinstance(tanggal_perkembangan, str):
+                #     tanggal_perkembangan = datetime.strptime(tanggal_perkembangan, '%Y-%m-%d %H:%M:%S')
                 catatan_perkembangan = Catatan(
                     id=id,
                     tanaman_id=tanaman_id, 
@@ -98,7 +101,7 @@ class KontrolCatatanPerkembangan:
                     '''UPDATE catatan_perkembangan
                        SET tanaman_id = ?, judul_catatan = ?, tanggal_perkembangan = ?, 
                            tinggi = ?, kondisi = ?, catatan = ?
-                       WHERE id = ?''',
+                       WHERE id = ?''', 
                     (catatan_perkembangan.getCatatan()['tanaman_id'],
                      catatan_perkembangan.getCatatan()['judul_catatan'],
                      catatan_perkembangan.getCatatan()['tanggal_perkembangan'].strftime('%Y-%m-%d %H:%M:%S'),
@@ -108,9 +111,11 @@ class KontrolCatatanPerkembangan:
                      catatan_perkembangan.getCatatan()['id'])
                 )
                 self.__conn.commit()
+                # print("proses berhasil")
                 return True
             except sqlite3.Error as e:
                 print(f"Error saat memperbarui catatan: {e}")
+                # print("proses gagal")
                 return False
         return False
 

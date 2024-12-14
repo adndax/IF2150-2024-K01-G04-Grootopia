@@ -193,14 +193,17 @@ class CatatanPerkembangan(QWidget):
         if dialog.exec_() == QDialog.Accepted:
             # Proses hapus catatan
             data = dialog.get_data()
+            # print(data['tanggal_perkembangan'].dateTime().toPyDateTime())
+            
             sukses = self.__kontrol_catatan.prosesTambahCatatan(
-                tanaman_id=1,  # Ganti dengan ID tanaman sesuai konteks
+                tanaman_id=data["tanaman_id"],  # Ganti dengan ID tanaman sesuai konteks
                 judul_catatan=data["judul_catatan"],
-                tanggal_perkembangan=datetime.now(),
-                tinggi=100,  # Contoh nilai tinggi
-                kondisi="Baik",  # Contoh nilai kondisi
+                tanggal_perkembangan=data['tanggal_perkembangan'].dateTime().toPyDateTime(),
+                tinggi=data["tinggi"],  # Contoh nilai tinggi
+                kondisi=data["kondisi"],  # Contoh nilai kondisi
                 catatan=data["catatan"]
             )
+            # print(sukses)
             
             # Membuat dialog sukses/gagal
             result_dialog = QDialog(self)
@@ -270,7 +273,7 @@ class CatatanPerkembangan(QWidget):
                     id=id_catatan,
                     tanaman_id=data["tanaman_id"],
                     judul_catatan=updated_data["judul_catatan"],
-                    tanggal_perkembangan=["tanggal_perkembangan"],
+                    tanggal_perkembangan=updated_data["tanggal_perkembangan"].dateTime().toPyDateTime(),
                     tinggi=updated_data["tinggi"],
                     kondisi=updated_data["kondisi"],
                     catatan=updated_data["catatan"]
@@ -706,6 +709,8 @@ class FormInputCatatan(QDialog):
         if is_edit and data:
             self.tanaman_id_input.setCurrentText(str(data["tanaman_id"]))
             self.judul_catatan_input.setText(data["judul_catatan"])
+            # tanggal_perkembangan_datetime = datetime.strptime(data["tanggal_perkembangan"], "%Y-%m-%d %H:%M:%S")
+            # self.tanggal_perkembangan_input.setDateTime(tanggal_perkembangan_datetime)
             self.tanggal_perkembangan_input.setDateTime(data["tanggal_perkembangan"])
             self.tinggi_input.setValue(data["tinggi"])
             self.kondisi_input.setCurrentText(data["kondisi"])
@@ -787,7 +792,7 @@ class FormInputCatatan(QDialog):
         return {
             "tanaman_id": self.tanaman_id_input.currentData(),  # Ambil ID tanaman dari dropdown
             "judul_catatan": self.judul_catatan_input.text(),
-            "tanggal_perkembangan": self.tanggal_perkembangan_input.dateTime().toPyDateTime(),
+            "tanggal_perkembangan": self.tanggal_perkembangan_input,
             "tinggi": self.tinggi_input.value(),
             "kondisi": self.kondisi_input.currentText(),
             "catatan": self.catatan_input.toPlainText()
