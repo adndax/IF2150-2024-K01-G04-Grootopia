@@ -279,7 +279,7 @@ class TanamanUI(QWidget):
                 background-color: #f5f5f5;
             }
         """)
-        tambah_btn.clicked.connect(self.tampilkanFormInput)
+        tambah_btn.clicked.connect(self.tampilkanKonfirmasiPenambahan)
         header_layout.addWidget(tambah_btn)
         
         self.__main_layout.addWidget(self.header_widget)
@@ -305,7 +305,7 @@ class TanamanUI(QWidget):
         # Container untuk item-item tanaman
         self.scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setSpacing(10)
+        self.scroll_layout.setSpacing(15)
         self.scroll_layout.setContentsMargins(30, 15, 30, 30)
         scroll.setWidget(self.scroll_content)
         
@@ -325,74 +325,124 @@ class TanamanUI(QWidget):
         self.perbaruiTampilan()
 
     def tanaman_item(self, tanaman):
-       
+        """Membuat item tanaman dengan tombol dropdown untuk deskripsi"""
         item_widget = QWidget()
-        item_widget.setFixedHeight(70)
-        item_layout = QHBoxLayout(item_widget)
-        item_layout.setContentsMargins(25, 20, 25, 20)
-        item_layout.setSpacing(20)
+        item_widget.setStyleSheet("""
+            QWidget {
+                background-color: white;
+                border-radius: 10px;
+                border: 1px solid #E0E0E0;
+            }
+        """)
+        main_layout = QVBoxLayout(item_widget)
+        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+
+        # Header Layout
+        header_layout = QHBoxLayout()
+        header_layout.setSpacing(10)
         
+        # Tombol Dropdown
+        dropdown_btn = QPushButton("▼")
+        dropdown_btn.setFixedSize(30, 30)
+        dropdown_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #FFFFFF;
+                color: #59694D;
+                font-size: 14px;
+                font-weight: bold;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #F5F5F5;
+            }
+        """)
+        
+        # Nama Tanaman
         nama_label = QLabel(tanaman['nama'])
         nama_label.setFont(QFont("Inter", 12, QFont.Bold))
-        nama_label.setAlignment(Qt.AlignHCenter)
-        nama_label.setStyleSheet("""QLabel {
-                                    color: #6C4530;
-                                    border: none;
-                                    margin-top: 10;
-                                }
-                            """)
+        nama_label.setStyleSheet("color: #6C4530; border: none;")
         
+        # Tombol Sunting
         sunting_btn = QPushButton("SUNTING")
         sunting_btn.setFixedSize(100, 30)
-        sunting_btn.setFont(QFont("Inter", 12, QFont.Bold))
         sunting_btn.setStyleSheet("""
             QPushButton {
                 background-color: #59694D;
                 color: white;
                 border-radius: 10px;
                 font-weight: bold;
-                min-height: 30px;
             }
             QPushButton:hover {
                 background-color: #4a5a3e;
             }
         """)
-        sunting_btn.clicked.connect(lambda: self.tampilkanFormInput(True, tanaman))
-        
+        sunting_btn.clicked.connect(lambda: self.tampilkanKonfirmasiPenyuntingan(is_edit=True, tanaman=tanaman))
+
+        # Tombol Hapus
         hapus_btn = QPushButton("HAPUS")
         hapus_btn.setFixedSize(100, 30)
-        hapus_btn.setFont(QFont("Inter", 12, QFont.Bold))
         hapus_btn.setStyleSheet("""
             QPushButton {
                 background-color: #9B2C2C;
                 color: white;
-                border: none;
                 border-radius: 10px;
                 font-weight: bold;
-                min-height: 30px;
             }
             QPushButton:hover {
                 background-color: #8b1c1c;
             }
         """)
-        hapus_btn.clicked.connect(lambda: self.tampilkanKonfirmasi(tanaman))
+        hapus_btn.clicked.connect(lambda: self.tampilkanKonfirmasiPenghapusan(tanaman))
         
-        item_layout.addWidget(nama_label)
-        item_layout.addStretch()
-        item_layout.addWidget(sunting_btn)
-        item_layout.addWidget(hapus_btn)
-        
-        item_widget.setStyleSheet("""
+        header_layout.addWidget(dropdown_btn)
+        header_layout.addWidget(nama_label)
+        header_layout.addStretch()
+        header_layout.addWidget(sunting_btn)
+        header_layout.addWidget(hapus_btn)
+
+        # Deskripsi Layout (Hidden by Default)
+        deskripsi_widget = QWidget()
+        deskripsi_widget.setStyleSheet("""
             QWidget {
-                background-color: white;
-                border-radius: 10px;
-                border: 1px solid #E0E0E0;
-                min-height: 70px;
+                background-color: #F5F5F5;
+                border-radius: 5px;
+                padding: 8px;
             }
         """)
-        
+        deskripsi_layout = QVBoxLayout(deskripsi_widget)
+        deskripsi_layout.setSpacing(5)
+        deskripsi_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Informasi Deskripsi
+        nama_info = QLabel(f"Nama Tanaman: {tanaman['nama']}")
+        nama_info.setFont(QFont("Inter", 12, QFont.Bold))
+        nama_info.setStyleSheet("color: #59694D; border: none;")
+
+        waktu_info = QLabel(f"Waktu Tanam: {tanaman.get('waktu_tanam', 'Tidak tersedia')}")
+        waktu_info.setFont(QFont("Inter", 12, QFont.Bold))
+        waktu_info.setStyleSheet("color: #59694D; border: none;")
+
+        deskripsi_layout.addWidget(nama_info)
+        deskripsi_layout.addWidget(waktu_info)
+
+        # Default: Sembunyikan deskripsi
+        deskripsi_widget.setVisible(False)
+
+        # Tambahkan ke layout utama
+        main_layout.addLayout(header_layout)
+        main_layout.addWidget(deskripsi_widget)
+
+        # Fungsi toggle dropdown
+        def toggle_dropdown():
+            is_visible = deskripsi_widget.isVisible()
+            deskripsi_widget.setVisible(not is_visible)
+            dropdown_btn.setText("▲" if not is_visible else "▼")
+
+        dropdown_btn.clicked.connect(toggle_dropdown)
+
+        # Tambahkan item ke daftar
         self.scroll_layout.addWidget(item_widget)
-        self.scroll_content.setStyleSheet("QWidget { min-height: 0px; }")
 
     def perbaruiTampilan(self):
         """Memperbarui tampilan setelah perubahan data"""
@@ -405,25 +455,228 @@ class TanamanUI(QWidget):
             self.tanaman_item(tanaman)
         
         self.scroll_layout.addStretch()
+            
+    # Tambahkan fungsi untuk konfirmasi penghapusan di `CatatanPerkembangan`
+    def hapus_catatan(self, id_catatan):
+        dialog = DeleteConfirmDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            sukses = self.__kontrol_catatan.prosesHapusCatatan(id_catatan)
+            self.tampilkanHasilOperasi(sukses, "Catatan berhasil dihapus!", "Gagal menghapus catatan!")
+            if sukses:
+                self.kelolaPerkembanganTanaman()
+
+    # Tambahkan fungsi untuk menampilkan dialog hasil
+    def tampilkanHasilOperasi(self, sukses, pesan_sukses, pesan_gagal):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Sukses" if sukses else "Gagal")
+        dialog.setFixedSize(400, 250)
+        dialog.setStyleSheet("background-color: #DDE3D8;")
+        
+        layout = QVBoxLayout(dialog)
+        layout.setSpacing(30)
+        layout.setContentsMargins(30, 35, 30, 35)
+        
+        title = QLabel("SUKSES" if sukses else "GAGAL")
+        title.setAlignment(Qt.AlignCenter)
+        title.setFont(QFont("Inter", 16, QFont.Bold))
+        title.setStyleSheet("color: #3D2929")
+        layout.addWidget(title)
+        
+        text = QLabel(pesan_sukses if sukses else pesan_gagal)
+        text.setAlignment(Qt.AlignCenter)
+        text.setFont(QFont("Inter", 14, QFont.Bold))
+        text.setStyleSheet("color: #3D2929")
+        layout.addWidget(text)
+        
+        ok_btn = QPushButton("OK")
+        ok_btn.setFixedSize(135, 35)
+        ok_btn.setFont(QFont("Inter", 12, QFont.Bold))
+        ok_btn.setStyleSheet("""
+            QPushButton {
+                background-color: white;
+                color: #333333;
+                border: none;
+                border-radius: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #f0f0f0;
+            }
+        """)
+        ok_btn.clicked.connect(dialog.accept)
+        
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(ok_btn)
+        btn_layout.setAlignment(Qt.AlignCenter)
+        layout.addLayout(btn_layout)
+        
+        dialog.exec_()
+
+    # Implementasi fungsi serupa pada TanamanUI
+    def tampilkanKonfirmasiPenghapusan(self, tanaman):
+        dialog = DeleteConfirmDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            sukses = self.__kontrol_tanaman.prosesHapusTanaman(tanaman['id'])
+            self.tampilkanHasilOperasi(sukses, "Tanaman berhasil dihapus!", "Gagal menghapus tanaman!")
+            if sukses:
+                self.kelolaTanaman()
     
-    def tampilkanFormInput(self, is_edit=False, data=None):
-        dialog = FormInputTanaman(self, is_edit, data)
+    def tampilkanKonfirmasiPenyuntingan(self, is_edit=False, tanaman=None):
+        """Menampilkan form input dan konfirmasi sebelum menyimpan perubahan"""
+        sukses = False
+        dialog = FormInputTanaman(self, is_edit, tanaman)
+        
         if dialog.exec_() == QDialog.Accepted:
             nama = dialog.nama_input.text()
             waktu_tanam = dialog.datetime_edit.dateTime().toPyDateTime()
-            success = False
+        
             if is_edit:
-                success = self.__kontrol_tanaman.prosesUpdateTanaman(data['id'], nama, waktu_tanam)
+                # Dialog konfirmasi penyuntingan
+                confirm_dialog = QDialog(self)
+                confirm_dialog.setWindowTitle("Konfirmasi Penyuntingan")
+                confirm_dialog.setFixedSize(400, 250)
+                confirm_dialog.setStyleSheet("background-color: #DDE3D8;")
+
+                layout = QVBoxLayout(confirm_dialog)
+                layout.setSpacing(20)
+                layout.setContentsMargins(20, 20, 20, 20)
+
+                # Title
+                title = QLabel("KONFIRMASI")
+                title.setAlignment(Qt.AlignCenter)
+                title.setFont(QFont("Inter", 16, QFont.Bold))
+                title.setStyleSheet("color: #3D2929")
+                layout.addWidget(title)
+
+                # Dynamic confirmation text
+                text = QLabel(f"Apakah Anda yakin ingin\nmenyimpan perubahan untuk {tanaman['nama']}?")
+                text.setAlignment(Qt.AlignCenter)
+                text.setFont(QFont("Inter", 14, QFont.Bold))
+                text.setStyleSheet("color: #3D2929")
+                layout.addWidget(text)
+
+                # Buttons
+                button_layout = QHBoxLayout()
+                batal_btn = QPushButton("BATAL")
+                batal_btn.setFixedSize(120, 35)
+                batal_btn.setFont(QFont("Inter", 12, QFont.Bold))
+                batal_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: white;
+                        color: #333333;
+                        border: none;
+                        border-radius: 10px;
+                    }
+                    QPushButton:hover {
+                        background-color: #f0f0f0;
+                    }
+                """)
+                batal_btn.clicked.connect(confirm_dialog.reject)
+
+                simpan_btn = QPushButton("SIMPAN")
+                simpan_btn.setFixedSize(120, 35)
+                simpan_btn.setFont(QFont("Inter", 12, QFont.Bold))
+                simpan_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #59694D;
+                        color: white;
+                        border-radius: 10px;
+                    }
+                    QPushButton:hover {
+                        background-color: #4a5a3e;
+                    }
+                """)
+                simpan_btn.clicked.connect(confirm_dialog.accept)
+
+                button_layout.addWidget(batal_btn)
+                button_layout.addWidget(simpan_btn)
+                button_layout.setAlignment(Qt.AlignCenter)
+                layout.addLayout(button_layout)
+
+                # Show confirmation dialog
+                if confirm_dialog.exec_() == QDialog.Accepted:
+                    sukses = self.__kontrol_tanaman.prosesUpdateTanaman(tanaman['id'], nama, waktu_tanam)
+                    self.tampilkanHasilOperasi(sukses, "Tanaman berhasil disunting!", "Gagal menyunting tanaman!")
             else:
-                success = self.__kontrol_tanaman.prosesTambahTanaman(nama, waktu_tanam)
+                sukses = self.__kontrol_tanaman.prosesTambahTanaman(nama, waktu_tanam)
+                self.tampilkanHasilOperasi(sukses, "Tanaman berhasil ditambahkan!", "Gagal menambahkan tanaman!")
             
-            if success:
-                self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
-                self.perbaruiTampilan()
-    
-    def tampilkanKonfirmasi(self, tanaman):
-        dialog = DeleteConfirmDialog(self)
+            if sukses:
+                self.kelolaTanaman()
+
+    def tampilkanKonfirmasiPenambahan(self):
+        """Menampilkan form input untuk menambahkan tanaman baru dengan konfirmasi"""
+        dialog = FormInputTanaman(self, is_edit=False)
+        
         if dialog.exec_() == QDialog.Accepted:
-            if self.__kontrol_tanaman.prosesHapusTanaman(tanaman['id']):
-                self.__tanaman_list = self.__kontrol_tanaman.getDaftarTanaman()
-                self.perbaruiTampilan()
+            # Ambil data dari form
+            nama = dialog.nama_input.text()
+            waktu_tanam = dialog.datetime_edit.dateTime().toPyDateTime()
+            
+            # Dialog konfirmasi sebelum menyimpan
+            confirm_dialog = QDialog(self)
+            confirm_dialog.setWindowTitle("Konfirmasi Penambahan")
+            confirm_dialog.setFixedSize(400, 250)
+            confirm_dialog.setStyleSheet("background-color: #DDE3D8;")
+            
+            layout = QVBoxLayout(confirm_dialog)
+            layout.setSpacing(20)
+            layout.setContentsMargins(20, 20, 20, 20)
+
+            # Title
+            title = QLabel("KONFIRMASI")
+            title.setAlignment(Qt.AlignCenter)
+            title.setFont(QFont("Inter", 16, QFont.Bold))
+            title.setStyleSheet("color: #3D2929")
+            layout.addWidget(title)
+
+            # Confirmation text
+            text = QLabel(f"Apakah Anda yakin ingin\nmenambahkan tanaman dengan nama {nama}?")
+            text.setAlignment(Qt.AlignCenter)
+            text.setFont(QFont("Inter", 14, QFont.Bold))
+            text.setStyleSheet("color: #3D2929")
+            layout.addWidget(text)
+
+            # Buttons
+            button_layout = QHBoxLayout()
+            batal_btn = QPushButton("BATAL")
+            batal_btn.setFixedSize(120, 35)
+            batal_btn.setFont(QFont("Inter", 12, QFont.Bold))
+            batal_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: white;
+                    color: #333333;
+                    border: none;
+                    border-radius: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #f0f0f0;
+                }
+            """)
+            batal_btn.clicked.connect(confirm_dialog.reject)
+
+            simpan_btn = QPushButton("TAMBAHKAN")
+            simpan_btn.setFixedSize(120, 35)
+            simpan_btn.setFont(QFont("Inter", 12, QFont.Bold))
+            simpan_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #59694D;
+                    color: white;
+                    border-radius: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #4a5a3e;
+                }
+            """)
+            simpan_btn.clicked.connect(confirm_dialog.accept)
+
+            button_layout.addWidget(batal_btn)
+            button_layout.addWidget(simpan_btn)
+            button_layout.setAlignment(Qt.AlignCenter)
+            layout.addLayout(button_layout)
+
+            if confirm_dialog.exec_() == QDialog.Accepted:
+                sukses = self.__kontrol_tanaman.prosesTambahTanaman(nama, waktu_tanam)
+                self.tampilkanHasilOperasi(sukses, "Tanaman berhasil ditambahkan!", "Gagal menambahkan tanaman!")
+                if sukses:
+                    self.kelolaTanaman()
