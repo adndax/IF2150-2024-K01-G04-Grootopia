@@ -75,12 +75,7 @@ pip install -r requirements.txt
 python src/main.py
 ```
 
-## Development
 
-### Running Tests
-```bash
-pytest tests/
-```
 
 
 
