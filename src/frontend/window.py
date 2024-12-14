@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
 from .components.sidebar import Sidebar  
 from .pages.daftar_tanaman import TanamanUI  # Ganti KelolaTanaman menjadi TanamanUI sesuai perubahan nama class sebelumnya
 from .pages.catatan_perkembangan import CatatanPerkembangan
-from .pages.jadwal_perawatan import JadwalPerawatan
+from .pages.jadwal_perawatan import JadwalUI
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.stack = QStackedWidget()
         self.stack.addWidget(TanamanUI())  
         self.stack.addWidget(CatatanPerkembangan())
-        self.stack.addWidget(JadwalPerawatan())
+        self.stack.addWidget(JadwalUI())
 
         layout.addWidget(self.sidebar)
         layout.addWidget(self.stack)
