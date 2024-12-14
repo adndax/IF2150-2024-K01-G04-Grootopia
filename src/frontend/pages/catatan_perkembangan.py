@@ -194,7 +194,7 @@ class CatatanPerkembangan(QWidget):
             # Proses hapus catatan
             data = dialog.get_data()
             # print(data['tanggal_perkembangan'].dateTime().toPyDateTime())
-            
+            print(data["tanaman_id"])
             sukses = self.__kontrol_catatan.prosesTambahCatatan(
                 tanaman_id=data["tanaman_id"],  # Ganti dengan ID tanaman sesuai konteks
                 judul_catatan=data["judul_catatan"],
@@ -269,6 +269,7 @@ class CatatanPerkembangan(QWidget):
             if dialog.exec_() == QDialog.Accepted:
                 # Proses hapus catatan
                 updated_data = dialog.get_data()
+                print(data["tanaman_id"])
                 sukses = self.__kontrol_catatan.prosesUpdateCatatan(
                     id=id_catatan,
                     tanaman_id=data["tanaman_id"],
@@ -545,9 +546,16 @@ class FormInputCatatan(QDialog):
 
         # Ambil daftar tanaman dari database
         tanaman_list = self.kontrol_tanaman.getDaftarTanaman()
-        for tanaman in tanaman_list:
-            # Masukkan nama tanaman ke dropdown, simpan ID sebagai data
-            self.tanaman_id_input.addItem(tanaman['nama'], tanaman['id'])
+        if(is_edit==0):
+           
+            for tanaman in tanaman_list:
+                # Masukkan nama tanaman ke dropdown, simpan ID sebagai data
+                self.tanaman_id_input.addItem(tanaman['nama'], tanaman['id'])
+        else :
+            for tanaman in tanaman_list:
+                # Masukkan nama tanaman ke dropdown, simpan ID sebagai data
+                if(data['tanaman_id']==tanaman['id']):
+                    self.tanaman_id_input.addItem(tanaman['nama'], tanaman['id'])
 
         # Judul Catatan
         judul_catatan_label = QLabel("Judul Catatan")
