@@ -1,59 +1,93 @@
+# PROGRAM K01-G04-Grootopia-UC04
+
+# IDENTITAS
+# Kelompok     : K01 - G04 - Groootopia
+# NIM/Nama - 1 : 13523005 - Muhammad Alfansya
+# NIM/Nama - 2 : 13523021 - Muhammad Raihan Nazhim Oktana
+# NIM/Nama - 3 : 13523057 - Faqih Muhammad Syuhada
+# NIM/Nama - 4 : 13523065 - Dzaky Aurellia Fawwaz
+# NIM/Nama - 5 : 13523071 - Adinda Putri
+# Instansi     : Sekolah Teknik Elektro dan Informatika (STEI) Institut Teknologi Bandung (ITB)
+# Jurusan      : Teknik Informatika (IF)
+# Nama File    : notification.py
+# Topik        : Tugas Besar Rekayasa Perangkat Lunak 2024 (IF2150-24)
+# Tanggal      : Sabtu, 21 Desember 2024
+# Deskripsi    : Subprogram UC04 - Pemberitahuan Perawatan Tanaman (Notifikasi)
+# PJ UC04      : 13523021 - Muhammad Raihan Nazhim Oktana
+
+# KAMUS
+# PyQt5 , datetime , os : module
+# Pemberitahuan , KontrolPemberitahuan , NotificationWindow : class
+
 # ALGORITMA
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QPixmap , QFont , QIcon
-from PyQt5.QtWidgets import QMainWindow , QLabel , QPushButton , QVBoxLayout , QWidget , QHBoxLayout , QFrame , QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import QMainWindow , QLabel , QPushButton , QVBoxLayout , QWidget , QHBoxLayout , QFrame , QGraphicsDropShadowEffect , QApplication
 from datetime import datetime , timedelta
+from src.backend.controllers.kontrol_tanaman import *
 from src.backend.controllers.kontrol_jadwal import *
 import os
 
-class Pemberitahuan:
-    def __init__(self, id, nama, waktu_perawatan, last_perawatan):
+class Pemberitahuan :
+    # SPESIFIKASI LOKAL
+    # Kelas Notifikasi Entity.
+
+    # KAMUS LOKAL
+    # __init__ : procedure
+
+    # ALGORITMA LOKAL
+    def __init__(self , id , nama , waktu_tanam , jenis_perawatan , waktu_perawatan) :
         self.id = id
         self.nama = nama
-        self.waktu_perawatan = waktu_perawatan  # Durasi dalam detik untuk notifikasi
-        self.last_perawatan = last_perawatan
-        self.kontrol_jadwal = None  # Akan dihubungkan dari MainWindow
+        self.waktu_tanam = waktu_tanam
+        self.jenis_perawatan = jenis_perawatan
+        self.waktu_perawatan = timedelta(seconds = waktu_perawatan)
 
-    def cekNotifikasi(self):
-        if not self.kontrol_jadwal:
-            return
+class KontrolPemberitahuan :
+    # SPESIFIKASI LOKAL
+    # Kelas Notifikasi Controller.
 
-        daftar_jadwal = self.kontrol_jadwal.getDaftarJadwal()
-        sekarang = QDateTime.currentDateTime().toPyDateTime()
-        for jadwal in daftar_jadwal:
-            waktu_jadwal = jadwal['waktu']
-            selisih = (waktu_jadwal - sekarang).total_seconds()
+    # KAMUS LOKAL
+    # processCekNotifikasi , cekNotifikasi : procedure
 
-            # Jika jadwal mendekati waktu perawatan (<= 1 jam)
-            if 0 < selisih <= self.waktu_perawatan:
-                self.tampilkanNotifikasi(jadwal)
+    # ALGORITMA LOKAL
+    def processCekNotifikasi(self) :
+        daftar_tanaman = KontrolTanaman.getDaftarTanaman()
+        daftar_jadwal = KontrolJadwal.getDaftarJadwal()
+        now = datetime.now()
+        while (true) :
+            for jadwal in daftar_jadwal :
+                tanaman = Pemberitahuan(jadwal['tanaman_id'] , daftar_tanaman[jadwal['tanaman_id']]['__nama'] , daftar_tanaman[jadwal['tanaman_id']]['__waktu_tanam'] , jadwal['jenis_perawatan'] , jadwal['waktu'])
+                if (tanaman.cekNotifikasi()) :
+                    app = QApplication(sys.argv)
+                    notif_window = NotificationWindow(tanaman.nama , tanaman.jenis_perawatan)
+                    notif_window.show()
+                    sys.exit(app.exec_())
 
-    def tampilkanNotifikasi(self, jadwal):
-        nama_tanaman = jadwal['nama_tanaman']
-        jenis_perawatan = jadwal['jenis_perawatan']
-        self.notif_window = NotificationWindow(nama_tanaman, jenis_perawatan)
-        self.notif_window.show()
-
+    def cekNotifikasi(self) :
+        now = datetime.now()
+        target = (now - self.waktu_tanam) % self.waktu_perawatan
+        return (target < timedelta(seconds = 1))
 
 class NotificationWindow(QMainWindow) :
     # SPESIFIKASI LOKAL
-    # Kelas Notifikasi.
+    # Kelas Notifikasi UI / Boundary.
 
     # KAMUS LOKAL
-    # __init__ , initUI , cekNotif , cekEvent : procedure
+    # __init__ , initUI , closeNotif , closeEvent : procedure
 
     # ALGORITMA LOKAL
-    def __init__(self , tanaman , nama_tanaman = "Nama Tanaman") :
+    def __init__(self , nama_tanaman , jenis_perawatan) :
         super().__init__()
-        self.tanaman = tanaman
         self.nama_tanaman = nama_tanaman
+        self.jenis_perawatan = jenis_perawatan
         self.initUI()
 
     def initUI(self) :
-        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__) , '../../../img/logo.png'))
+        logo_path = os.path.join(os.path.dirname(__file__) , 'logo.png')
 
         self.setWindowTitle("Grootopia")
-        self.setFixedSize(1100 , 370)
+        self.setFixedSize(1100 , 400)
         self.setStyleSheet("background-color : #E4E8DC")
         self.setWindowIcon(QIcon(logo_path))
 
@@ -85,7 +119,12 @@ class NotificationWindow(QMainWindow) :
         separator.setStyleSheet("color: #606D56 ; border-top : 75px solid #606D56")
         separator.setFixedHeight(2)
 
-        message_label = QLabel(f"<p style = 'font-size : 32px ; color : #3D2929'><b>" f"Waktunya {self.jenis_perawatan} untuk merawat <span style = 'color : #9B2C2C ; font-weight : bold'>{self.nama_tanaman}</span>!</p>")
+        message_label = QLabel(
+            f"<p style = 'font-size : 32px ; color : #3D2929'><b>"
+            f"Waktunya merawat <span style = 'color : #9B2C2C ; font-weight : bold'>{self.nama_tanaman}</span>!</b></p>"
+            f"<p style = 'font-size : 24px ; color : #3D2929'><b>"
+            f"Jenis Perawatan : <span style = 'color : #9B2C2C'>{self.jenis_perawatan}</span></b></p>"
+        )
         message_label.setAlignment(Qt.AlignCenter)
 
         box_widget = QWidget()
@@ -127,10 +166,9 @@ class NotificationWindow(QMainWindow) :
         container.setLayout(main_layout)
         self.setCentralWidget(container)
 
-    def closeNotif(self):
-        self.tanaman.resetNotifikasi()
+    def closeNotif(self) :
         self.close()
 
-    def closeEvent(self , event):
+    def closeEvent(self , event) :
         self.closeNotif()
         event.accept()
