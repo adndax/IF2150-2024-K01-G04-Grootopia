@@ -1,12 +1,11 @@
 # src/frontend/window.py
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
 from PyQt5.QtCore import QTimer
-from src.frontend.components.notification import *  # Import Pemberitahuan
-from src.backend.controllers.kontrol_jadwal import KontrolJadwal  # Backend untuk jadwal
+from src.frontend.components.notification import *
+from src.frontend.components.sidebar import Sidebar
 from .pages.daftar_tanaman import TanamanUI
 from .pages.catatan_perkembangan import CatatanPerkembangan
 from .pages.jadwal_perawatan import JadwalUI
-from src.frontend.components.sidebar import Sidebar
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -14,7 +13,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Grootopia")
         self.setGeometry(100, 100, 1920, 1080)
 
-        # Layout utama
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         layout = QHBoxLayout(main_widget)
@@ -29,13 +27,7 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(self.sidebar)
         layout.addWidget(self.stack)
-
-        # Inisialisasi notifikasi dan timer
-        while (true) :
-            init_notifikasi()
+        processCekNotifikasi()
 
     def change_page(self, index):
         self.stack.setCurrentIndex(index)
-    
-    def init_notifikasi():
-        processCekNotifikasi()
